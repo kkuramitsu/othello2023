@@ -193,8 +193,6 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-game(OchibiAI(face='🦊', name='コギー'), 
-     OchibiAI(face='🐰', name='うさぎ'))
 
 
 
