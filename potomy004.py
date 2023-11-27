@@ -81,6 +81,9 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
+    """
+    boradが与えられたとき、row行col列目にplayerの色の石がおけるかどうか判定する
+    """
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -96,6 +99,9 @@ def is_valid_move(board, row, col, player):
     return False
 
 def get_valid_moves(board, player):
+    """
+    borad上にplayerがおける位置のリストを返す
+    """
     return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
 def flip_stones(board, row, col, player):
