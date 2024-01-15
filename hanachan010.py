@@ -1,17 +1,3 @@
-class MaxAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = 🐱
-        self.name = ねこ
-
-    def move(self, board, color: int)->tuple[int, int]:
-        """
-        ボードが与えられたとき、どこに置くか(row, col)を返す
-        """
-        valid_moves = get_valid_moves(board, color)
-        # 一番多く取れるところを選ぶ
-        selected_move = find_eagar_move(board, color)
-        return selected_move
-
 from typing import List, Union
 import numpy as np
 from IPython.display import clear_output
@@ -202,3 +188,17 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+
+class MaxAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = '🐱'
+        self.name = 'ねこ'
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row, col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # 一番多く取れるところを選ぶ
+        selected_move = find_eagar_move(board, color)
+        return selected_move
