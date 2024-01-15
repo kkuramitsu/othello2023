@@ -203,3 +203,20 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+
+
+import random
+
+class HiMERUAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = '☕'
+        self.name = 'HiMERU'
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
