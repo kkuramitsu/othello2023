@@ -1,4 +1,8 @@
 class ShrimpAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = '🦐'
+        self.name = 'えび'
+    
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         _, move = self.minimax(board, piece, 3, float('-inf'), float('inf'), True)
         return move
