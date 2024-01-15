@@ -288,7 +288,7 @@ def display_board2(board, marks):
 class tanukiAI(OthelloAI):
     def __init__(self):
         self.face = '🌹'
-        self.name = 'date'
+        self.name = 'tanuki'
 
     def move(self, board: np.array, color: int) -> tuple[int, int]:
         _, move = self.minimax(board, color, depth=3)  # 必要に応じて深さを調整してください
