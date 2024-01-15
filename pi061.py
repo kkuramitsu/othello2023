@@ -219,7 +219,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 class Cat12345(OthelloAI):
-    def __init__(self,depth=7):
+    def __init__(self):
         self.face = '👳'
         self.name = 'にしがた' 
 
