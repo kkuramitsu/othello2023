@@ -146,9 +146,9 @@ class OthelloAI(object):
             return 'がーん'
 
 class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
+    def __init__(self):
+        self.face = '🐶'
+        self.name = '相手'
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
