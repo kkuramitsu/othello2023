@@ -216,8 +216,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 class OchibiAI(OthelloAI):
     def __init__(self):
-        self.face = "🍑"
-        self.name = "おちびAI"
+        super().__init__('🍑', 'おちびさん')
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
@@ -226,8 +225,7 @@ class OchibiAI(OthelloAI):
 
 class Cat12345(OthelloAI):
     def __init__(self):
-        self.face = '👳'
-        self.name = 'にしがた' 
+        super().__init__('👳', 'にしがた')
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
