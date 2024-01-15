@@ -1,3 +1,46 @@
+class marronyAI(OthelloAI):
+
+    def __init__(self):
+        self.face = '🐰'
+        self.name = 'まろん'
+
+    def evaluate(self, board):
+        """盤面を評価する関数"""
+        count = board.sum(axis=0)
+        corner_count = count[0] + count[7] + count[-1] + count[-8]
+        edge_count = count[1] + count[6] + count[-2] + count[-7]
+        surrounded_count = board.max(axis=1) - board
+        surrounded_by_opponent_count = (board * -1).max(axis=1) - board
+        return count[self.turn] + 5 * corner_count + 3 * edge_count - 2 * surrounded_count - 3 * surrounded_by_opponent_count
+
+    def simulate(self, board):
+        """シミュレーションを行う関数"""
+        while True:
+            move = random.choice(board.nonzero()[0])
+            new_board = board.copy()
+            new_board[move] = self.turn
+            if not new_board.any():
+                return self.evaluate(new_board)
+            board = new_board
+
+    def get_move(self, board):
+        """最適な手を返す関数"""
+        best_score = -float("inf") if self.turn == 1 else float("inf")
+        best_move = None
+        for move in board.nonzero()[0]:
+            new_board = board.copy()
+            new_board[move] = self.turn
+            score = self.simulate(new_board)
+            if score > best_score:
+                best_score = score
+                best_move = move
+        return best_move
+
+
+
+
+
+
 from typing import List, Union
 import numpy as np
 from IPython.display import clear_output
@@ -204,45 +247,4 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
-
-class marronyAI(OthelloAI):
-
-    def __init__(self):
-        self.face = '🐰'
-        self.name = 'まろん'
-
-    def evaluate(self, board):
-        """盤面を評価する関数"""
-        count = board.sum(axis=0)
-        corner_count = count[0] + count[7] + count[-1] + count[-8]
-        edge_count = count[1] + count[6] + count[-2] + count[-7]
-        surrounded_count = board.max(axis=1) - board
-        surrounded_by_opponent_count = (board * -1).max(axis=1) - board
-        return count[self.turn] + 5 * corner_count + 3 * edge_count - 2 * surrounded_count - 3 * surrounded_by_opponent_count
-
-    def simulate(self, board):
-        """シミュレーションを行う関数"""
-        while True:
-            move = random.choice(board.nonzero()[0])
-            new_board = board.copy()
-            new_board[move] = self.turn
-            if not new_board.any():
-                return self.evaluate(new_board)
-            board = new_board
-
-    def get_move(self, board):
-        """最適な手を返す関数"""
-        best_score = -float("inf") if self.turn == 1 else float("inf")
-        best_move = None
-        for move in board.nonzero()[0]:
-            new_board = board.copy()
-            new_board[move] = self.turn
-            score = self.simulate(new_board)
-            if score > best_score:
-                best_score = score
-                best_move = move
-        return best_move
-
-
-
 
