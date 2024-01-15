@@ -158,8 +158,8 @@ class OthelloAI(object):
 
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
-        self.face = '🐈' # 自分の好きな絵文字
-        self.name = 'ねこ' # 自分の好きな名前
+        self.face = face
+        self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
@@ -168,10 +168,9 @@ class OchibiAI(OthelloAI):
 
 
 class SnowAI(OthelloAI):
-    def __init__(self):
-
-        self.face = '🐶' # 自分の好きな絵文字
-        self.name = 'いぬ' # 自分の好きな名前
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
