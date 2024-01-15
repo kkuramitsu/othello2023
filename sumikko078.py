@@ -1,5 +1,4 @@
 class marronyAI(OthelloAI):
-
     def __init__(self):
         self.face = '🐰'
         self.name = 'まろん'
