@@ -153,10 +153,10 @@ class OthelloAI(object):
             return 'がーん'
 
 class OchibiAI(OthelloAI):
-    def __init__(self, face, name, depth=6):
+    def __init__(self,depth=6):
       self.face = '🍑'
       self.name = 'もも'
-   # def __init__(self, face, name):
+   # def __init__(self, face, name): 
       #  self.face = face
        # self.name = name
 
@@ -312,7 +312,7 @@ def minimax(node, depth, maximizingPlayer, alpha=float('-inf'), beta=float('inf'
         return minEval
 
 class NamachaAI2(OthelloAI):
-    def __init__(self, face, name, depth=6):
+    def __init__(self, depth=6):
        self.face = "🍵"
        self.name = 'なまちゃまー'
    # def __init__(self, face, name, depth=6):
