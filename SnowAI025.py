@@ -1,5 +1,5 @@
-!rm -rf othello2023
-!git clone https://github.com/kkuramitsu/othello2023.git
+#!rm -rf othello2023
+#!git clone https://github.com/kkuramitsu/othello2023.git
 from othello2023.othello import *
 from typing import List, Union
 import numpy as np
