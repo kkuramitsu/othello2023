@@ -1,3 +1,42 @@
+class OthelloAI(object):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def __repr__(self):
+        return f"{self.face}{self.name}"
+
+    def move(self, board: np.array, color: int)->tuple[int, int]:
+        """
+        ボードの状態と色(color)が与えられたとき、
+        どこに置くか返す(row, col)
+        """
+        valid_moves = get_valid_moves(board, color)
+        return valid_moves[0]
+
+    def say(self, board: np.array, piece: int)->str:
+        if count_board(board, piece) >= count_board(board, -piece):
+            return 'やったー'
+        else:
+            return 'がーん'
+            
+class You(OthelloAI):
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードの状態と色(color)が与えられたとき、
+        どこに置くか人間に尋ねる(row, col)
+        """
+        valid_moves = get_valid_moves(board, color)
+        while True:
+            try:
+                print('あなたの置ける場所は、', valid_moves)
+                row, col = map(int, input('どこにおきますか？ ').split(','))
+                break # 正しい入力なら抜ける
+            except:
+                print('入力形式がおかしいです。row,col で入力してください。')
+        return (row,col)
+
 class tanukiAI(OthelloAI):
     def __init__(self, face, name):
         self.face = face
