@@ -1,5 +1,8 @@
 class PamoAI(OthelloAI):
-    def __init__(self, face, name):
+    def __init__(self):
+        self.face = '🐁'
+        self.name = 'パモ'
+
         super().__init__(face, name)
         self.avoid_moves = [
             (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
@@ -27,6 +30,15 @@ class PamoAI(OthelloAI):
                 return move
         return None
 
+    def evaluate_move(self, board, move, piece):
+        virtual_board = board.copy()
+        virtual_board[move] = piece
+
+        my_score = count_board(virtual_board, piece)
+        opponent_score = count_board(virtual_board, -piece)
+
+        return my_score - opponent_score
+
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
 
@@ -45,4 +57,14 @@ class PamoAI(OthelloAI):
             if move not in self.avoid_moves:
                 return move
 
-        return valid_moves[len(valid_moves)//2]
+        # Evaluate each valid move and choose the one with the highest evaluation
+        best_move = valid_moves[0]
+        best_evaluation = self.evaluate_move(board, best_move, piece)
+
+        for move in valid_moves[1:]:
+            evaluation = self.evaluate_move(board, move, piece)
+            if evaluation > best_evaluation:
+                best_move = move
+                best_evaluation = evaluation
+
+        return best_move
