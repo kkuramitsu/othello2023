@@ -291,7 +291,7 @@ class tanukiAI(OthelloAI):
         self.name = 'tanuki'
 
     def move(self, board: np.array, color: int) -> tuple[int, int]:
-        _, move = self.minimax(board, color, depth=3)  # 必要に応じて深さを調整してください
+        _, move = self.minimax(board, color, depth=5)  # 必要に応じて深さを調整してください
         return move
 
     def minimax(self, board, color, depth, maximizing_player=True):
