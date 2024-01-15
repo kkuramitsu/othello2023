@@ -1,4 +1,4 @@
-class MinMax3AI(OthelloAI):
+class tanukiAI(OthelloAI):
     def __init__(self, face, name):
         self.face = face
         self.name = name
