@@ -1,3 +1,4 @@
+from othello2023.othello import *
 from typing import List, Union
 import numpy as np
 from IPython.display import clear_output
@@ -150,6 +151,15 @@ class OthelloAI(object):
         else:
             return 'がーん'
 
+class OchibiAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        return valid_moves[0]
+
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -188,6 +198,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+
 
 class MaxAI(OthelloAI):
     def __init__(self):
