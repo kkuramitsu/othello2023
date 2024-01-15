@@ -139,12 +139,12 @@ def find_eagar_move(board, player):
     return best_result
 
 class OthelloAI(object):
-    def __init__(self,face, name):
+    def __init__(self, face, name):
         self.face = face
         self.name = name
 
     def __repr__(self):
-        #return f"{self.face}{self.name}"
+        return f"{self.face}{self.name}"
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
