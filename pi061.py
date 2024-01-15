@@ -225,7 +225,7 @@ class OchibiAI(OthelloAI):
     
 
 class Cat12345(OthelloAI):
-    def __init__(self):
+    def __init__(self,depth=7):
         self.face = '👳'
         self.name = 'にしがた' 
 
