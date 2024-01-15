@@ -18,6 +18,58 @@ BLACK = -1  # 黒
 WHITE = 1   # 白
 EMPTY = 0   # 空
 
+class Cat12345(OthelloAI):
+    def __init__(self):
+        self.face = '👳'
+        self.name = 'にしがた' 
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
+        return best_move
+
+    def negamax(self, board, piece, depth, alpha, beta):
+        if depth == 0 or not get_valid_moves(board, piece):
+            return self.evaluate(board, piece), None
+
+        max_eval = -float('inf')
+        best_move = None
+
+        for move in get_valid_moves(board, piece):
+            new_board = board.copy()
+            new_board[move] = piece
+            flipped_stones = flip_stones(new_board, *move, piece)
+            for r, c in flipped_stones:
+                new_board[r, c] = piece
+
+            eval_, _ = self.negamax(new_board, -piece, depth - 1, -beta, -alpha)
+            eval_ = -eval_
+
+            if eval_ > max_eval:
+                max_eval = eval_
+                best_move = move
+
+            alpha = max(alpha, eval_)
+            if alpha >= beta:
+                break
+
+        return max_eval, best_move
+
+    def evaluate(self, board, piece):
+        # Implement your board evaluation function
+        # This is a placeholder; you should replace it with your evaluation logic
+        return count_board(board, piece) - count_board(board, -piece)
+    
+class OchibiAI(OthelloAI):
+    def __init__(self):
+        self.face = "🍑"
+        self.name = "おちびAI"
+
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        return valid_moves[0]
+    
+
+
 def init_board(N:int=8):
     """
     ボードを初期化する
@@ -162,14 +214,7 @@ class OthelloAI(object):
         else:
             return 'がーん'
 
-class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = "🍑"
-        self.name = "おちびAI"
 
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
 
 import traceback
 
