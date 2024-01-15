@@ -202,9 +202,9 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 class hanAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
+    def __init__(self):
+        self.face = '🐶'
+        self.name = 'もえ'
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
