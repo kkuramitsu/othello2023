@@ -1,4 +1,23 @@
 import random
+
+class OthelloAI(object):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def __repr__(self):
+        return f"{self.face}{self.name}"
+
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        return valid_moves[0]
+
+    def say(self, board: np.array, piece: int)->str:
+        if count_board(board, piece) >= count_board(board, -piece):
+            return 'やったー'
+        else:
+            return 'がーん'
+            
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
         self.face = face
@@ -145,23 +164,6 @@ def find_eagar_move(board, player):
             max_flips = len(stones_to_flip)
     return best_result
 
-class OthelloAI(object):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
-
-    def __repr__(self):
-        return f"{self.face}{self.name}"
-
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-
-    def say(self, board: np.array, piece: int)->str:
-        if count_board(board, piece) >= count_board(board, -piece):
-            return 'やったー'
-        else:
-            return 'がーん'
 
 import traceback
 
