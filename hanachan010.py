@@ -6,18 +6,16 @@ import time
 import os
 import random
 
-BLACK = -1 # 黒
-WHITE = 1 # 白
-EMPTY = 0 # 空
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
     """
     ボードを初期化する
-    N: ボードの大きさ（N=8がデフォルト値）
+    N: ボードの大きさ　(N=8がデフォルト値）
     """
-    # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -31,12 +29,17 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
-
 stone_codes = [
     f'{BG_EMPTY}⚫️{BG_RESET}',
-    f'{BG_EMPTY}・{BG_RESET}',
+    f'{BG_EMPTY}🟩{BG_RESET}',
     f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
+
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
 
 def stone(piece):
     return stone_codes[piece+1]
@@ -160,6 +163,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -172,6 +176,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -198,6 +203,8 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+
+
 
 
 class MaxAI(OthelloAI):
