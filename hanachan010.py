@@ -200,8 +200,8 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 class MaxAI(OthelloAI):
     def __init__(self, face, name):
-        self.face = face
-        self.name = name
+        self.face = '🐱'
+        self.name = あやんご
 
     def move(self, board, color: int)->tuple[int, int]:
         """
