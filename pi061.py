@@ -218,10 +218,10 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
-class Nyanko_AI(OthelloAI):
-    def __init__(self, face, name, depth=7):
-        super().__init__(face, name)
-        self.depth = depth
+class Cat12345(OthelloAI):
+    def __init__(self,depth=7):
+        self.face = '👳' # 自分の好きな絵文字
+        self.name = 'cute_おじ' # 自分の好きな名前
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
