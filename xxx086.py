@@ -145,9 +145,9 @@ class OthelloAI(object):
 
     def say(self, board: np.array, piece: int)->str:
         if count_board(board, piece) >= count_board(board, -piece):
-            return 'やったー'
+            return 'わーい！'
         else:
-            return 'がーん'
+            return '(T_T)'
 
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
