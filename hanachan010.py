@@ -1,7 +1,7 @@
 class MaxAI(OthelloAI):
     def __init__(self, face, name):
-        self.face = '🐱'
-        self.name = あやんご
+        self.face = 🐱
+        self.name = ねこ
 
     def move(self, board, color: int)->tuple[int, int]:
         """
