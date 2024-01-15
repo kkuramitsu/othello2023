@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 class OthelloAI(object):
     def __init__(self, face, name):
