@@ -213,11 +213,10 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-
 class OchibiAI(OthelloAI):
-    def __init__(self):
-        self.face = "🍑"
-        self.name = "おちびAI"
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
