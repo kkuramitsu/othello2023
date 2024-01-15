@@ -201,6 +201,27 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
+class hanAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+
+        # 最も少ない石を返す手を見つける
+        min_flips = float('inf')
+        best_move = valid_moves[0]
+
+        for move in valid_moves:
+            r, c = move
+            flipped_stones = flip_stones(board, r, c, piece)
+            if len(flipped_stones) < min_flips:
+                min_flips = len(flipped_stones)
+                best_move = move
+
+        return best_move
+
 
 
 
