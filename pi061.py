@@ -222,12 +222,12 @@ class OchibiAI(OthelloAI):
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
-    
 
-class Cat12345(OthelloAI):
-    def __init__(self,depth=7):
+class NegaAlphaOthelloAI(OthelloAI):
+    def __init__(self, face, name, depth=7):
         self.face = '👳'
         self.name = 'にしがた' 
+        self.depth = depth
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
@@ -264,3 +264,5 @@ class Cat12345(OthelloAI):
         # Implement your board evaluation function
         # This is a placeholder; you should replace it with your evaluation logic
         return count_board(board, piece) - count_board(board, -piece)
+
+
