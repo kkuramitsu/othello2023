@@ -223,7 +223,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
-class NegaAlphaOthelloAI(OthelloAI):
+class Cat12345(OthelloAI):
     def __init__(self, face, name, depth=7):
         self.face = '👳'
         self.name = 'にしがた' 
