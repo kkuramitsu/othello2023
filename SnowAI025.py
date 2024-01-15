@@ -139,7 +139,7 @@ def find_eagar_move(board, player):
     return best_result
 
 class OthelloAI(object):
-    def __init__(self, face, name):
+    def __init__(self, name):
         self.face = face
         self.name = name
 
