@@ -1,7 +1,7 @@
 class iohana(OthelloAI):
     def __init__(self, face, name):
-        self.face = face
-        self.name = name
+        self.face = '🌱'
+        self.name = hana
 
     def monte_carlo_move(self, board, color: int, simulations: int = 100) -> tuple[int, int]:
         """
