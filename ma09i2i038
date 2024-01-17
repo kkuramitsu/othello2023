@@ -310,3 +310,18 @@ def minimax(node, depth, maximizingPlayer, alpha=float('-inf'), beta=float('inf'
             if beta <= alpha:
                 break
         return minEval
+class NamachaAI2(OthelloAI):
+    def __init__(self,  depth=6):
+       self.face = "🍵"
+       self.name = 'なまちゃまー'
+   # def __init__(self, face, name, depth=6):
+    #    super().__init__(face, name)
+     #   self.depth = depth
+
+    def move(self, board, piece):
+        # 現在の盤面で有効な手のリストを取得
+        valid_moves = get_valid_moves(board, piece)
+
+        # 有効な手がない場合はNoneを返す
+        if not valid_moves:
+            return None
