@@ -310,7 +310,7 @@ def minimax(node, depth, maximizingPlayer, alpha=float('-inf'), beta=float('inf'
         return minEval
 
 class NamachaAI2(OthelloAI):
-    def __init__(self):
+    def __init__(self, depth=6):
        self.face = '🍵'
        self.name = 'なまちゃまー'
    # def __init__(self, face, name, depth=6):
