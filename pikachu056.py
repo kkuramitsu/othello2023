@@ -157,47 +157,47 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
-def board_play(player: OthelloAI, board, piece: int):
-    display_board(board, sleep=0)
-    if len(get_valid_moves(board, piece)) == 0:
-        print(f"{player.name}は、置けるところがありません。スキップします。")
-        return True
-    try:
-        start_time = time.time()
-        r, c = player.move(board.copy(), piece)
-        end_time = time.time()
-    except Exception as e:
-        print(f"{player.name}は、エラーを発生させました。反則まけ")
-        print(e)
-        traceback.print_exc()
-        return False
-    if not is_valid_move(board, r, c, piece):
-        print(f"{player.name}が返した({r},{c})には、置けません。反則負け。")
-        return False
-    display_move(board, r, c, piece)
-    return True
+    def board_play(player: OthelloAI, board, piece: int):
+          display_board(board, sleep=0)
+          if len(get_valid_moves(board, piece)) == 0:
+              print(f"{player.name}は、置けるところがありません。スキップします。")
+              return True
+          try:
+              start_time = time.time()
+              r, c = player.move(board.copy(), piece)
+              end_time = time.time()
+          except Exception as e:
+              print(f"{player.name}は、エラーを発生させました。反則まけ")
+              print(e)
+              traceback.print_exc()
+              return False
+          if not is_valid_move(board, r, c, piece):
+              print(f"{player.name}が返した({r},{c})には、置けません。反則負け。")
+              return False
+          display_move(board, r, c, piece)
+          return True
 
 
 
-def comment(player1: OthelloAI, player2: OthelloAI, board):
-    try:
-        print(f"{player1.name}: {player1.say(board, BLACK)}")
-    except:
-        pass
-    try:
-        print(f"{player2.name}: {player2.say(board, WHITE)}")
-    except:
-        pass
+    def comment(player1: OthelloAI, player2: OthelloAI, board):
+          try:
+              print(f"{player1.name}: {player1.say(board, BLACK)}")
+          except:
+              pass
+          try:
+              print(f"{player2.name}: {player2.say(board, WHITE)}")
+          except:
+              pass
 
-def game(player1: OthelloAI, player2: OthelloAI, N=8):
-    board = init_board(N)
-    display_board(board, black=f'{player1}', white=f'{player2}')
-    while count_board(board, EMPTY) > 0:
-        if not board_play(player1, board, BLACK):
-            break
-        if not board_play(player2, board, WHITE):
-            break
-    comment(player1, player2, board)
+    def game(player1: OthelloAI, player2: OthelloAI, N=8):
+          board = init_board(N)
+          display_board(board, black=f'{player1}', white=f'{player2}')
+          while count_board(board, EMPTY) > 0:
+              if not board_play(player1, board, BLACK):
+                  break
+              if not board_play(player2, board, WHITE):
+                  break
+          comment(player1, player2, board)
 
 # class EnhancedOthelloAI(OthelloAI):
 #     def __init__(self, face, name, depth=3):
@@ -408,3 +408,10 @@ class You(OthelloAI):
         selected_move = random.choice(valid_moves)
         return selected_move
 
+class You(OthelloAI):
+
+    def __init__(self):
+
+        self.face = '🐶' # 自分の好きな絵文字
+
+        self.name = 'アーニャ' # 自分の好きな名前
