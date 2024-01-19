@@ -131,6 +131,9 @@ def find_eagar_move(board, player):
     return best_result
 
 class OthelloAI(object):
+    def __init__(self):
+        self.name = "OchibiAI"
+        self.face = "O"
     def __init__(self, face, name):
         self.face = face
         self.name = name
@@ -162,21 +165,18 @@ class OchibiAI(OthelloAI):
           if len(get_valid_moves(board, piece)) == 0:
               print(f"{player.name}は、置けるところがありません。スキップします。")
               return True
-          try:
-              start_time = time.time()
-              r, c = player.move(board.copy(), piece)
-              end_time = time.time()
-          except Exception as e:
-              print(f"{player.name}は、エラーを発生させました。反則まけ")
-              print(e)
-              traceback.print_exc()
-              return False
-          if not is_valid_move(board, r, c, piece):
-              print(f"{player.name}が返した({r},{c})には、置けません。反則負け。")
-              return False
-          display_move(board, r, c, piece)
-          return True
 
+    def board_play(player, board, piece):
+        try:
+            r, c = player.move(board.copy(), piece)
+            end_time = time.time()
+        except:
+            print(f"{player.name}は、エラーを発生させました。反則まけ")
+            return False
+        if not is_valid_move(board, r, c, piece):
+            return False
+    board[r][c] = piece
+    return True
 
 
     def comment(player1: OthelloAI, player2: OthelloAI, board):
