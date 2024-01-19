@@ -186,7 +186,7 @@ class marronyAI(OthelloAI):
             }
         else:  # それ以降は攻めの姿勢
             weights = {
-                'corner': 10,
+                'corner': 13,
                 'edge': 5,
                 'mobility': 10,
                 'parity': 5,
