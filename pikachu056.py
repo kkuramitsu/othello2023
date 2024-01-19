@@ -408,10 +408,3 @@ class You(OthelloAI):
         selected_move = random.choice(valid_moves)
         return selected_move
 
-class {C}(OthelloAI):
-
-    def __init__(self):
-
-        self.face = '🐶' # 自分の好きな絵文字
-
-        self.name = 'もも' # 自分の好きな名前
