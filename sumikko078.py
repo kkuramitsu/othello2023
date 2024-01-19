@@ -30,11 +30,13 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
+
 stone_codes = [
-    f'{BG_EMPTY}⚫️{BG_RESET}',
+    f'{BG_EMPTY}●{BG_RESET}',
     f'{BG_EMPTY}🟩{BG_RESET}',
-    f'{BG_EMPTY}⚪️{BG_RESET}',
+    f'{BG_EMPTY}○{BG_RESET}',
 ]
+
 
 def stone(piece):
     return stone_codes[piece+1]
@@ -82,10 +84,6 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
-    """
-    boardが与えられた時row行col列めにplayerの色の石が置けるかどうか判定する
-    row:行col:列
-    """
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -101,12 +99,12 @@ def is_valid_move(board, row, col, player):
     return False
 
 def get_valid_moves(board, player):
-    """
-    board上にplayerがおける位置のリストを返す
-    """
     return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
 def flip_stones(board, row, col, player):
+    """
+    ひっくり返している
+    """
     N = len(board)
     stones_to_flip = []
     for dr, dc in directions:
@@ -129,6 +127,9 @@ def display_move(board, row, col, player):
     display_board(board, sleep=0.6)
 
 def find_eagar_move(board, player):
+    """
+    一番置けるところにおく
+    """
     valid_moves = get_valid_moves(board, player)
     max_flips = 0
     best_result = None
@@ -153,91 +154,188 @@ class OthelloAI(object):
 
     def say(self, board: np.array, piece: int)->str:
         if count_board(board, piece) >= count_board(board, -piece):
-            return '勝ったーーー'
+            return 'やったー'
         else:
-            return 'うわーーーん'
-            
+            return 'がーん'
+    
+
 class marronyAI(OthelloAI):
-    def __init__(self):
+    def __init__(self, max_depth=3):
+        self.max_depth = max_depth
         self.face = '🐰'
         self.name = 'まろん'
 
+    def get_best_move(self, board):
+        _, best_move = self.minimax(board, self.max_depth, float('-inf'), float('inf'), True)
+        return best_move
+
+    def minimax(self, board, depth, alpha, beta, maximizing_player):
+        if depth == 0 or self.is_terminal_node(board):
+            return self.evaluate(board), None
+
+        legal_moves = self.get_legal_moves(board)
+        if maximizing_player:
+            max_eval = float('-inf')
+            best_move = None
+            for move in legal_moves:
+                new_board = self.make_move(board, move)
+                eval, _ = self.minimax(new_board, depth - 1, alpha, beta, False)
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # アルファベータ剪定
+            return max_eval, best_move
+        else:
+            min_eval = float('inf')
+            best_move = None
+            for move in legal_moves:
+                new_board = self.make_move(board, move)
+                eval, _ = self.minimax(new_board, depth - 1, alpha, beta, True)
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # ベータ剪定
+            return min_eval, best_move
+
+    def is_terminal_node(self, board):
+        return len(self.get_legal_moves(board)) == 0
+
+    def make_move(self, board, move):
+        new_board = np.copy(board)
+        new_board[move[0], move[1]] = self.player
+        self.flip_discs(new_board, move)
+        return new_board
+
+    def flip_discs(self, board, move):
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        for direction in directions:
+            self.flip_discs_in_direction(board, move, direction)
+
+    def flip_discs_in_direction(self, board, move, direction):
+        x, y = move
+        dx, dy = direction
+        opponent = -self.player
+        to_flip = []
+        x += dx
+        y += dy
+        while 0 <= x < 8 and 0 <= y < 8 and board[x, y] == opponent:
+            to_flip.append((x, y))
+            x += dx
+            y += dy
+        if 0 <= x < 8 and 0 <= y < 8 and board[x, y] == self.player:
+            for flip_move in to_flip:
+                board[flip_move[0], flip_move[1]] = self.player
+
+    def get_legal_moves(self, board):
+        legal_moves = []
+        for i in range(8):
+            for j in range(8):
+                if self.is_legal_move(board, (i, j)):
+                    legal_moves.append((i, j))
+        return legal_moves
+
+    def is_legal_move(self, board, move):
+        if board[move[0], move[1]] != 0:
+            return False
+        for direction in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            if self.is_flippable(board, move, direction):
+                return True
+        return False
+
+    def is_flippable(self, board, move, direction):
+        x, y = move
+        dx, dy = direction
+        opponent = -self.player
+        x += dx
+        y += dy
+        while 0 <= x < 8 and 0 <= y < 8 and board[x, y] == opponent:
+            x += dx
+            y += dy
+        return 0 <= x < 8 and 0 <= y < 8 and board[x, y] == self.player
+
     def evaluate(self, board):
         """盤面を評価する関数"""
+        weights = {
+            'corner': 25,
+            'edge': 7,
+            'mobility': 3,
+            'parity': 5,
+            'disc_count': 10
+        }
+
+        # 盤面の各要素に対する重み付き評価
         count = board.sum(axis=0)
         corner_count = count[0] + count[7] + count[-1] + count[-8]
         edge_count = count[1] + count[6] + count[-2] + count[-7]
-        surrounded_count = board.max(axis=1) - board
-        surrounded_by_opponent_count = (board * -1).max(axis=1) - board
-        return count[self.turn] + 5 * corner_count + 3 * edge_count - 2 * surrounded_count - 3 * surrounded_by_opponent_count
+        mobility = len(self.get_legal_moves(board))
+        parity = 1 if board.sum() % 2 == 0 else -1
+        disc_count = count[1] - count[-1]
 
-    def simulate(self, board):
-        """シミュレーションを行う関数"""
-        while True:
-            move = random.choice(board.nonzero()[0])
-            new_board = board.copy()
-            new_board[move] = self.turn
-            if not new_board.any():
-                return self.evaluate(new_board)
-            board = new_board
+        # 評価関数の計算
+        evaluation = (
+            weights['corner'] * corner_count +
+            weights['edge'] * edge_count +
+            weights['mobility'] * mobility +
+            weights['parity'] * parity +
+            weights['disc_count'] * disc_count
+        )
 
-    def get_move(self, board):
-        """最適な手を返す関数"""
-        best_score = -float("inf") if self.turn == 1 else float("inf")
-        best_move = None
-        for move in board.nonzero()[0]:
-            new_board = board.copy()
-            new_board[move] = self.turn
-            score = self.simulate(new_board)
-            if score > best_score:
-                best_score = score
-                best_move = move
-        return best_move
+        return evaluation
+
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
         self.face = face
         self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
+      """
+      ボードの状態と色が与えられた時、
+      どこにおくか返す(1row,col)
+      """
+      valid_moves = get_valid_moves(board, piece)
+      return valid_moves[0]
 
 
-def board_play(player: OthelloAI, board, piece: int):
-    display_board(board, sleep=0)
-    if len(get_valid_moves(board, piece)) == 0:
-        print(f"{player}は、置けるところがありません。スキップします。")
+    def board_play(player: OthelloAI, board, piece: int):
+        display_board(board, sleep=0)
+        if len(get_valid_moves(board, piece)) == 0:
+            print(f"{player}は、置けるところがありません。スキップします。")
+            return True
+        try:
+            start_time = time.time()
+            r, c = player.move(board.copy(), piece)
+            end_time = time.time()
+        except:
+            print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+            return False
+            traceback.print_exc()
+        if not is_valid_move(board, r, c, piece):
+            print(f"{player}が返した({r},{c})には、置けません。反則負け。")
+            return False
+        display_move(board, r, c, piece)
         return True
-    try:
-        start_time = time.time()
-        r, c = player.move(board.copy(), piece)
-        end_time = time.time()
-    except:
-        print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
-        return False
-    if not is_valid_move(board, r, c, piece):
-        print(f"{player}が返した({r},{c})には、置けません。反則負け。")
-        return False
-    display_move(board, r, c, piece)
-    return True
 
-def comment(player1: OthelloAI, player2: OthelloAI, board):
-    try:
-        print(f"{player1}: {player1.say(board, BLACK)}")
-    except:
-        pass
-    try:
-        print(f"{player2}: {player2.say(board, WHITE)}")
-    except:
-        pass
+    def comment(player1: OthelloAI, player2: OthelloAI, board):
+              try:
+                  print(f"{player1}: {player1.say(board, BLACK)}")
+              except:
+                  pass
+              try:
+                  print(f"{player2}: {player2.say(board, WHITE)}")
+              except:
+                  pass
 
-def game(player1: OthelloAI, player2: OthelloAI,N=6):
-    board = init_board(N)
-    display_board(board, black=f'{player1}', white=f'{player2}')
-    while count_board(board, EMPTY) > 0:
-        if not board_play(player1, board, BLACK):
-            break
-        if not board_play(player2, board, WHITE):
-            break
-    comment(player1, player2, board)
+    def game(player1: OthelloAI, player2: OthelloAI,N=8):
+        board = init_board(N)
+        display_board(board, black=f'{player1}', white=f'{player2}')
+        while count_board(board, EMPTY) > 0:
+            if not board_play(player1, board, BLACK):
+                break
+            if not board_play(player2, board, WHITE):
+                break
+        comment(player1, player2, board)
 
