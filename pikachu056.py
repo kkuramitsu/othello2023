@@ -130,6 +130,52 @@ def find_eagar_move(board, player):
             max_flips = len(stones_to_flip)
     return best_result
 
+# class OthelloAI(object):
+#     def __init__(self, face, name):
+#         self.face = face
+#         self.name = name
+
+#     def __repr__(self):
+#         return f"{self.face}{self.name}"
+
+#     def move(self, board: np.array, piece: int)->Tuple[int, int]:
+#         valid_moves = get_valid_moves(board, piece)
+#         return valid_moves[0]
+
+#     def say(self, board: np.array, piece: int)->str:
+#         if count_board(board, piece) >= count_board(board, -piece):
+#             return 'やったー'
+#         else:
+#             return 'がーん'
+
+# class OchibiAI(OthelloAI):
+#     def __init__(self, face, name):
+#         self.face = face
+#         self.name = name
+
+#     def move(self, board: np.array, piece: int)->Tuple[int, int]:
+#         valid_moves = get_valid_moves(board, piece)
+#         return valid_moves[0]
+
+#     def board_play(player: OthelloAI, board, piece: int):
+#           display_board(board, sleep=0)
+#           if len(get_valid_moves(board, piece)) == 0:
+#               print(f"{player.name}は、置けるところがありません。スキップします。")
+#               return True
+#           try:
+#               start_time = time.time()
+#               r, c = player.move(board.copy(), piece)
+#               end_time = time.time()
+#           except Exception as e:
+#               print(f"{player.name}は、エラーを発生させました。反則まけ")
+#               print(e)
+#               traceback.print_exc()
+#               return False
+#           if not is_valid_move(board, r, c, piece):
+#               print(f"{player.name}が返した({r},{c})には、置けません。反則負け。")
+#               return False
+#           display_move(board, r, c, piece)
+#           return True
 class OthelloAI(object):
     def __init__(self, face, name):
         self.face = face
@@ -138,7 +184,7 @@ class OthelloAI(object):
     def __repr__(self):
         return f"{self.face}{self.name}"
 
-    def move(self, board: np.array, piece: int)->Tuple[int, int]:
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
@@ -153,30 +199,13 @@ class OchibiAI(OthelloAI):
         self.face = face
         self.name = name
 
-    def move(self, board: np.array, piece: int)->Tuple[int, int]:
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
-    def board_play(player: OthelloAI, board, piece: int):
-          display_board(board, sleep=0)
-          if len(get_valid_moves(board, piece)) == 0:
-              print(f"{player.name}は、置けるところがありません。スキップします。")
-              return True
-          try:
-              start_time = time.time()
-              r, c = player.move(board.copy(), piece)
-              end_time = time.time()
-          except Exception as e:
-              print(f"{player.name}は、エラーを発生させました。反則まけ")
-              print(e)
-              traceback.print_exc()
-              return False
-          if not is_valid_move(board, r, c, piece):
-              print(f"{player.name}が返した({r},{c})には、置けません。反則負け。")
-              return False
-          display_move(board, r, c, piece)
-          return True
 
+
+import traceback
 
 
     def comment(player1: OthelloAI, player2: OthelloAI, board):
