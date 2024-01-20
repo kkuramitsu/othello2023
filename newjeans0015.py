@@ -206,10 +206,12 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+    #自分のAI
+    import random
 
 class ringoAI(OthelloAI):
     def __init__(self, face, name):
-        self.face = face
+          self.face = face
         self.name = name
 
     def move(self, board, color: int)->tuple[int, int]:
@@ -220,4 +222,10 @@ class ringoAI(OthelloAI):
         # ランダムに選ぶ
         selected_move = random.choice(valid_moves)
         return selected_move
+# Create Othello players
+player1 = OthelloAI('🐰', 'おぱんちゅう')
+random_player = RandomAI('🐇', 'んぽちゃむ')
 
+# Start the game
+game(player1, random_player, N=8)
+  
