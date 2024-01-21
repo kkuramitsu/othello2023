@@ -1,3 +1,5 @@
+from othello2023.othello import *
+
 import random
 
 class mizukikun(OthelloAI):
