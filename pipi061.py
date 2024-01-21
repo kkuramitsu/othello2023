@@ -398,7 +398,7 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
         return None
 
 class Cat777(OthelloAI):
-    def __init__(self, depth=10):
+    def __init__(self, depth=6):
         self.face = '👳'
         self.name = 'ぱたん'
         self.depth = depth
