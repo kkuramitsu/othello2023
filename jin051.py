@@ -1,5 +1,15 @@
 from othello2023.othello import *
 
+from othello2023.othello import OthelloAI, Board
+
+class OthelloAI:
+    def __init__(self):
+        self.face = None
+
+    def move(self, board, piece):
+        raise NotImplementedError("move method must be implemented in the subclass")
+
+
 class mizukikun(OthelloAI):
     def __init__(self):
         self.face = '💧' # 自分の好きな絵文字
