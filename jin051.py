@@ -1,4 +1,24 @@
-from othello2023.othello import OthelloAI, Board
+class Board:
+    def __init__(self):
+        self.size = 8  # ボードのサイズ
+
+    def is_valid_move(self, r, c, piece):
+        # (省略)
+
+    def copy(self):
+        # (省略)
+
+    def play_move(self, move):
+        # (省略)
+
+    def is_game_over(self):
+        # (省略)
+
+    def turn(self):
+        # (省略)
+
+    def count_pieces(self, piece):
+        # (省略)
 
 class OthelloAI:
     def __init__(self):
@@ -11,12 +31,6 @@ class mizukikun(OthelloAI):
     def __init__(self):
         self.face = '💧'  # 自分の好きな絵文字
         self.name = '瑞稀'  # 自分の好きな名前
-
-class OchibiAI(OthelloAI):
-    def __init__(self):
-        super().__init__()
-        self.face = "○"
-        self.name = "おちび"
 
     def _get_valid_moves(self, board, piece):
         valid_moves = []
@@ -72,7 +86,7 @@ class OchibiAI(OthelloAI):
 board = Board()
 ai = mizukikun()
 while not board.is_game_over():
-    move = ai.move(board, board.turn)
+    move = ai.move(board, board.turn())
     board.play_move(move)
 
 print(board)
