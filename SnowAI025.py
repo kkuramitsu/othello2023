@@ -186,8 +186,7 @@ class SnowAI(OthelloAI):
             cc = collections.Counter(snow[i]+valid_moves)
             return [x for x in snow[i]+valid_moves if cc[x] > 1][0]
 
-          else:
-            return get_valid_moves(board, piece)[0]
+        return get_valid_moves(board, piece)[0]
 
 
 
