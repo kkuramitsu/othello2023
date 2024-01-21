@@ -400,7 +400,7 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
 import random
 
 class Cat777(OthelloAI):
-    def __init__(self, depth=3):
+    def __init__(self, depth=6):
         self.face = '👳'
         self.name = 'ぱたん'
         self.depth = depth
