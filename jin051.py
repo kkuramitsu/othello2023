@@ -54,3 +54,21 @@ class mizukikun(OthelloAI):
                 best_move = move
 
         return best_move
+        
+    def game(player1, player2, N=8):
+    board = Board(N)
+    player1_instance = player1()
+    player2_instance = player2()
+
+    display_board(board, black=f'{player1_instance}', white=f'{player2_instance}')
+
+    while count_board(board, EMPTY) > 0:
+        if not board_play(player1_instance, board, BLACK):
+            break
+        if not board_play(player2_instance, board, WHITE):
+            break
+
+    print("Game Over")
+    print("Result:")
+    display_board(board, black=f'{player1_instance}', white=f'{player2_instance}')
+
