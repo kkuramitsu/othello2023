@@ -6,54 +6,34 @@ class mizukikun(OthelloAI):
         self.face = '💧' # 自分の好きな絵文字
         self.name = '瑞稀' # 自分の好きな名前
 
-        # 端のマス目の活用を強化する
-        self._edge_weights = {
-            (0, 0): 1000,
-            (0, 7): 1000,
-            (7, 0): 1000,
-            (7, 7): 1000,
-        }
 
-        # 相手の石を挟む動きを抑える
-        self._sandwich_weights = {
-            (0, 1): -100,
-            (1, 0): -100,
-            (7, 6): -100,
-            (6, 7): -100,
-        }
+    def __init__(self, board):
+        super().__init__(board)
+        self.face = "○"
 
-        # 相手の石を反転させる動きを抑える
-        self._flip_weights = {
-            (0, 2): -50,
-            (1, 1): -50,
-            (7, 5): -50,
-            (6, 6): -50,
-        }
+    def move(self, board, piece):
+        """
+        ボード上の有効なマス目の中から、スコアの高いマス目を探して、そのマス目に石を置く。
 
-    def _get_score(self, position):
-        # 端のマス目の活用を加味する
-        score = super()._get_score(position)
-        for row, col in position:
-            if (row, col) in self._edge_weights:
-                score += self._edge_weights[(row, col)]
+        Args:
+            board: ボード
+            piece: 自分の石の色
 
-        # 相手の石を挟む動きを減点する
-        for row, col in position:
-            if (row, col) in self._sandwich_weights:
-                score -= self._sandwich_weights[(row, col)]
+        Returns:
+            石を置いたマス目の座標
+        """
+        next_moves = self._get_next_moves(board)
+        if next_moves:
+            best_move = max(next_moves, key=self._get_score)
+            return best_move
+        return None
 
-        # 相手の石を反転させる動きを減点する
-        for row, col in position:
-            if (row, col) in self._flip_weights:
-                score -= self._flip_weights[(row, col)]
 
-        return score
+board = othello.Board()
+ai = OchibiAI(board)
 
-    def _get_next_moves(self):
-        next_moves = super()._get_next_moves()
+while board.is_game_over() is False:
+    move = ai.move(board, board.turn)
+    board.play_move(move)
 
-        # 端のマス目を優先する
-        next_moves = list(filter(lambda move: (move[0], move[1]) in self._edge_weights, next_moves))
-
-        return next_moves
-
+print(board)
