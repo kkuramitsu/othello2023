@@ -172,7 +172,7 @@ class OchibiAI(OthelloAI):
 class SnowAI(OthelloAI):
     def __init__(self):
         self.face = '⛄' # 自分の好きな絵文字
-        self.name = 'Snowman' # 自分の好きな名前
+        self.name = 'SnowMan' # 自分の好きな名前
 
 
 
