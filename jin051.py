@@ -48,3 +48,12 @@ class mizukikun(OthelloAI):
                 score -= self._flip_weights[(row, col)]
 
         return score
+
+    def _get_next_moves(self):
+        next_moves = super()._get_next_moves()
+
+        # 端のマス目を優先する
+        next_moves = list(filter(lambda move: (move[0], move[1]) in self._edge_weights, next_moves))
+
+        return next_moves
+
