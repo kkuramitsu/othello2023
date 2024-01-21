@@ -168,8 +168,10 @@ class OchibiAI(OthelloAI):
         return valid_moves[0]
 
 
-
+import collections
 class SnowAI(OthelloAI):
+    
+
     def __init__(self):
         self.face = '⛄' # 自分の好きな絵文字
         self.name = 'SnowMan' # 自分の好きな名前
@@ -177,9 +179,15 @@ class SnowAI(OthelloAI):
 
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
+        snow=[[(0,0),(0,5),(5,0),(5,5)],[(0,2),(0,3)]]
         valid_moves = get_valid_moves(board, piece)
-        return valid_moves[-1]
+        for i in range(2):
+          if len(set(snow[i]+valid_moves))<len(snow[i]+valid_moves):
+            cc = collections.Counter(snow[i]+valid_moves)
+            return [x for x in snow[i]+valid_moves if cc[x] > 1][0]
 
+          else:
+            return get_valid_moves(board, piece)[0]
 
 
 
