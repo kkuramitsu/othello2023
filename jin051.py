@@ -7,11 +7,16 @@ class OthelloAI:
     def move(self, board, piece):
         raise NotImplementedError("move method must be implemented in the subclass")
 
-
 class mizukikun(OthelloAI):
     def __init__(self):
-        self.face = '💧' # 自分の好きな絵文字
-        self.name = '瑞稀' # 自分の好きな名前
+        self.face = '💧'  # 自分の好きな絵文字
+        self.name = '瑞稀'  # 自分の好きな名前
+
+class OchibiAI(OthelloAI):
+    def __init__(self):
+        super().__init__()
+        self.face = "○"
+        self.name = "おちび"
 
     def _get_valid_moves(self, board, piece):
         """
@@ -80,4 +85,3 @@ while not board.is_game_over():
     board.play_move(move)
 
 print(board)
-
