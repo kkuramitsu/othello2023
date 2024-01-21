@@ -218,50 +218,170 @@ class OchibiAI(OthelloAI):
         self.face = face
         self.name = name
 
+
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
-class Cat12345(OthelloAI):
+class You(OthelloAI):
     def __init__(self,depth=6):
-        self.face = '👳'
-        self.name = 'にしがた'
+        self.face = '😘'
+        self.name = 'アーニャ'
         self.depth = depth
+        
+    def monte_carlo_move(self, board, color: int, simulations: int = 100) -> tuple[int, int]:
+        """
+        モンテカルロ探索法に基づいて手を選ぶ
+        """
+        valid_moves = get_valid_moves(board, color)
 
-    def move(self, board: np.array, piece: int) -> tuple[int, int]:
-        _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
-        return best_move
-
-    def negamax(self, board, piece, depth, alpha, beta):
-        if depth == 0 or not get_valid_moves(board, piece):
-            return self.evaluate(board, piece), None
-
-        max_eval = -float('inf')
         best_move = None
+        best_score = float('-inf')
 
-        for move in get_valid_moves(board, piece):
-            new_board = board.copy()
-            new_board[move] = piece
-            flipped_stones = flip_stones(new_board, *move, piece)
-            for r, c in flipped_stones:
-                new_board[r, c] = piece
+        for move in valid_moves:
+            total_score = 0
+            for _ in range(simulations):
+                simulation_board = board.copy()
+                make_move(simulation_board, move[0], move[1], color)
+                total_score += self.monte_carlo_simulation(simulation_board, color)
 
-            eval_, _ = self.negamax(new_board, -piece, depth - 1, -beta, -alpha)
-            eval_ = -eval_
+            average_score = total_score / simulations
 
-            if eval_ > max_eval:
-                max_eval = eval_
+            if average_score > best_score:
+                best_score = average_score
                 best_move = move
 
-            alpha = max(alpha, eval_)
-            if alpha >= beta:
-                break
+        return best_move
 
-        return max_eval, best_move
+    def monte_carlo_simulation(self, board, color: int) -> float:
+        """
+        モンテカルロシミュレーションの評価関数
+        ここではランダムに手を選ぶだけの単純なものとしています。
+        """
+        return random.random()
 
-    def evaluate(self, board, piece):
-        # Implement your board evaluation function
-        # This is a placeholder; you should replace it with your evaluation logic
-        return count_board(board, piece) - count_board(board, -piece)
+    def alpha_beta_move(self, board, color: int, depth: int = 3) -> tuple[int, int]:
+        """
+        アルファベータ法に基づいて手を選ぶ
+        """
+        valid_moves = get_valid_moves(board, color)
+
+        best_move = None
+        alpha = float('-inf')
+        beta = float('inf')
+
+        for move in valid_moves:
+            new_board = board.copy()
+            make_move(new_board, move[0], move[1], color)
+            score = self.alpha_beta_minimax(new_board, depth - 1, False, -color, alpha, beta)
+
+            if score > alpha:
+                alpha = score
+                best_move = move
+
+        return best_move
+
+    def alpha_beta_minimax(self, board, depth, maximizing_player, color, alpha, beta) -> float:
+        if depth == 0 or len(get_valid_moves(board, color)) == 0:
+            return self.evaluate_board(board, color)
+
+        valid_moves = get_valid_moves(board, color)
+        if maximizing_player:
+            for move in valid_moves:
+                new_board = board.copy()
+                make_move(new_board, move[0], move[1], color)
+                alpha = max(alpha, self.alpha_beta_minimax(new_board, depth - 1, False, -color, alpha, beta))
+                if beta <= alpha:
+                    break
+            return alpha
+        else:
+            for move in valid_moves:
+                new_board = board.copy()
+                make_move(new_board, move[0], move[1], color)
+                beta = min(beta, self.alpha_beta_minimax(new_board, depth - 1, True, -color, alpha, beta))
+                if beta <= alpha:
+                    break
+            return beta
+
+    def evaluate_board(self, board, color) -> float:
+        """
+        ボードの評価関数
+        ここでは簡単にコマの数を数えていますが、より高度な評価関数を実装することができます。
+        """
+        return count_board(board, color)
+
+    def alpha_beta_move(self, board, color: int, depth: int = 3) -> tuple[int, int]:
+        """
+        アルファベータ法に基づいて手を選ぶ
+        """
+        valid_moves = get_valid_moves(board, color)
+
+        best_move = None
+        alpha = float('-inf')
+        beta = float('inf')
+
+        for move in valid_moves:
+            new_board = board.copy()
+            make_move(new_board, move[0], move[1], color)
+            score = self.alpha_beta_minimax(new_board, depth - 1, False, -color, alpha, beta)
+
+            if score > alpha:
+                alpha = score
+                best_move = move
+
+        return best_move
+
+    def alpha_beta_minimax(self, board, depth, maximizing_player, color, alpha, beta) -> float:
+        if depth == 0 or len(get_valid_moves(board, color)) == 0:
+            return self.evaluate_board(board, color)
+
+        valid_moves = get_valid_moves(board, color)
+        if maximizing_player:
+            for move in valid_moves:
+                new_board = board.copy()
+                make_move(new_board, move[0], move[1], color)
+                alpha = max(alpha, self.alpha_beta_minimax(new_board, depth - 1, False, -color, alpha, beta))
+                if beta <= alpha:
+                    break
+            return alpha
+        else:
+            for move in valid_moves:
+                new_board = board.copy()
+                make_move(new_board, move[0], move[1], color)
+                beta = min(beta, self.alpha_beta_minimax(new_board, depth - 1, True, -color, alpha, beta))
+                if beta <= alpha:
+                    break
+            return beta
+
+    def evaluate_board(self, board, color) -> float:
+        """
+        ボードの評価関数
+        ここでは簡単にコマの数を数えていますが、より高度な評価関数を実装することができます。
+        """
+        return count_board(board, color)
+
+# ... (前回のコード)
+
+# 以下はYouクラスの修正以降のコード
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
+
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードの状態と色(color)が与えられたとき、
+        どこに置くか人間に尋ねる(row, col)
+        """
+        valid_moves = get_valid_moves(board, color)
+        selected_move = random.choice(valid_moves)
+        return selected_move
+
 
 
