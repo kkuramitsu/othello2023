@@ -201,27 +201,74 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
+
 class hanAI(OthelloAI):
     def __init__(self):
         self.face = '🐶'
-        self.name = 'もえ'
+        self.name = 'はん'
 
-    def move(self, board: np.array, piece: int) -> tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
+    import random
 
-        # 最も少ない石を返す手を見つける
-        min_flips = float('inf')
-        best_move = valid_moves[0]
+    # 評価関数
+    def evaluate(board):
 
-        for move in valid_moves:
-            r, c = move
-            flipped_stones = flip_stones(board, r, c, piece)
-            if len(flipped_stones) < min_flips:
-                min_flips = len(flipped_stones)
-                best_move = move
+        score = 0
+        
+        # 石の数
+        my_stones = len(my_positions)
+        op_stones = len(op_positions)
+        score += (my_stones - op_stones) * 100
+        
+        # 角の位置ボーナス
+        if board[0,0] in my_positions:
+            score += 500
+            
+        # 連の石の数に応じたボーナス
+        for line in lines:
+            my_count = len([x for x in line if x in my_positions]) 
+            if my_count >= 3:
+                score += my_count * 30
+                
+        # 次の手で失う石の避ける
+        avoid_positions = get_dangerous_positions(board)
+        if next_move in avoid_positions:
+            score -= 80
+            
+        return score
 
-        return best_move
+    # Move orderingのための評価関数
+    def ordering_evaluate(move):
+        # マスの重要度などからpriorityを算出
+        priority = 0
+        return priority
 
+    # Move orderingによるソート  
+    def order_moves(moves):
+        moves.sort(key=ordering_evaluate, reverse=True) 
+        return moves
 
+    # アルファベータ法
+    def alphabeta(node, depth, α, β): 
+        if node.is_terminal():
+            return evaluate(node)
+
+        if node.player == my_player:
+            v = -inf
+            for child in order_moves(node.moves):
+                v = max(v, alphabeta(child, depth-1, α, β)) 
+                α = max(α, v)
+                if α >= β: 
+                    break
+            return v
+        
+        else:
+            v = inf
+            for child in order_moves(node.moves):
+                v = min(v, alphabeta(child, depth-1, α, β))
+                β = min(β, v) 
+                if α >= β:
+                    break
+            return v
+      
 
 
