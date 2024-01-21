@@ -194,14 +194,25 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 class PamoAI(OthelloAI):
-    def __init__(self):
+    def __init__(self, face, name):
         self.face = '🐁'
         self.name = 'パモ'
+
         self.avoid_moves = [
+            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7), (7, 1), (7, 6),
             (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
             (2, 1), (2, 6), (3, 1), (3, 6), (4, 1), (4, 6),
             (5, 1), (5, 6), (6, 1), (6, 2), (6, 3), (6, 4),
             (6, 5), (6, 6)
+        ]
+
+        self.avoid_moves_2 = [
+            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7),
+            (7, 1), (7, 6), (1, 1), (1, 6), (6, 1), (6, 6)
+        ]
+
+        self.avoid_moves_3 = [
+            (1, 1), (1, 6), (6, 1), (6, 6)
         ]
 
     def find_corner_move(self, valid_moves):
@@ -223,15 +234,6 @@ class PamoAI(OthelloAI):
                 return move
         return None
 
-    def evaluate_move(self, board, move, piece):
-        virtual_board = board.copy()
-        virtual_board[move] = piece
-
-        my_score = count_board(virtual_board, piece)
-        opponent_score = count_board(virtual_board, -piece)
-
-        return my_score - opponent_score
-
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
 
@@ -250,14 +252,14 @@ class PamoAI(OthelloAI):
             if move not in self.avoid_moves:
                 return move
 
-        # Evaluate each valid move and choose the one with the highest evaluation
-        best_move = valid_moves[0]
-        best_evaluation = self.evaluate_move(board, best_move, piece)
+        # Avoid specified moves
+        for move in valid_moves:
+            if move not in self.avoid_moves_2:
+                return move
+        
+        # Avoid specified moves
+        for move in valid_moves:
+            if move not in self.avoid_moves_3:
+                return move
 
-        for move in valid_moves[1:]:
-            evaluation = self.evaluate_move(board, move, piece)
-            if evaluation > best_evaluation:
-                best_move = move
-                best_evaluation = evaluation
-
-        return best_move
+        return valid_moves[len(valid_moves)//2]
