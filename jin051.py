@@ -1,5 +1,3 @@
-from othello2023.othello import *
-
 from othello2023.othello import OthelloAI, Board
 
 class OthelloAI:
