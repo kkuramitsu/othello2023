@@ -407,18 +407,16 @@ class Cat777(OthelloAI):
         self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
         self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
         self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
-        self.opening_book = [
-            (5,4)
-        ]
+        
         self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
         self.turn_count = 0
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         self.turn_count += 1
-        if self.turn_count <= len(self.opening_book):
-            # 序盤の棋譜に従って指す
-            return self.opening_book[self.turn_count - 1]
 
+        if self.turn_count == 1:
+            return 5, 4
+            
         valid_moves = [move for move in get_valid_moves(board, piece) if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
         for move in valid_moves:
             if move in self.corners:
