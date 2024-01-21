@@ -197,7 +197,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 class MaxAI(OthelloAI):
-    def __init__(self, face, name):
+    def __init__(self):
         self.face = '🐈'
         self.name = 'name'
 
