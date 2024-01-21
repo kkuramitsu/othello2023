@@ -12,6 +12,12 @@ class mizukikun(OthelloAI):
         self.face = '💧'  # 自分の好きな絵文字
         self.name = '瑞稀'  # 自分の好きな名前
 
+class OchibiAI(OthelloAI):
+    def __init__(self):
+        super().__init__()
+        self.face = "○"
+        self.name = "おちび"
+
     def _get_valid_moves(self, board, piece):
         valid_moves = []
         for r in range(board.size):
