@@ -90,3 +90,4 @@ while not board.is_game_over():
     board.play_move(move)
 
 print(board)
+
