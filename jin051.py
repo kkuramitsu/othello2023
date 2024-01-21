@@ -1,5 +1,14 @@
 from othello2023.othello import OthelloAI
 
+class OchibiAI:
+    def __init__(self, name, face):
+        self.name = name
+        self.face = face
+
+    def move(self, board, piece):
+        # Your move logic here
+        return r, c
+
 class mizukikun(OthelloAI):
     def __init__(self):
         self.face = '💧'  # 自分の好きな絵文字
