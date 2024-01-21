@@ -1,4 +1,4 @@
-import othello2023.othello as othello
+from othello2023.othello import *
 
 class mizukikun(OthelloAI):
 
