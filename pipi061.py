@@ -419,6 +419,19 @@ class Cat777(OthelloAI):
             if move in self.corners:
                 return move
 
+        if self.turn_count <= 10:
+            best_moves = []
+            min_flips = float('inf')
+            for move in valid_moves:
+                new_board = board.copy()
+                flips = make_move(new_board, piece, move)
+                if len(flips) < min_flips:
+                    min_flips = len(flips)
+                    best_moves = [move]
+                elif len(flips) == min_flips:
+                    best_moves.append(move)
+            return random.choice(best_moves)
+
         if self.turn_count <= 24:
             return self.improved_nega_alpha_ai.move(board, piece)
 
@@ -443,6 +456,7 @@ class Cat777(OthelloAI):
             return random.choice(valid_moves)
         else:
             return random.choice(best_moves)
+
 
 class Cat551(OthelloAI):
     def __init__(self, depth=7):
