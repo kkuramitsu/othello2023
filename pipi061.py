@@ -442,10 +442,10 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
 #             return random.choice(best_moves)
 
 class Cat551(OthelloAI):
-         def __init__(self, depth=7):
-         self.face = '👳'
-         self.name = 'ぱたん'
-         self.depth = depth
+    def __init__(self, depth=7):
+        self.face = '👳'
+        self.name = 'ぱたん'
+        self.depth = depth
         self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
         self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)  # ImprovedNegaAlphaOthelloAIを使用
         self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
