@@ -1,6 +1,6 @@
 class mizukikun(OthelloAI):
 
-    def __init__(self, ):
+    def __init__(self):
         self.face = '💧' # 自分の好きな絵文字
         self.name = '瑞稀' # 自分の好きな名前
 
