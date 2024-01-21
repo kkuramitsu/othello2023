@@ -6,10 +6,22 @@ class mizukikun(OthelloAI):
         self.face = '💧' # 自分の好きな絵文字
         self.name = '瑞稀' # 自分の好きな名前
 
+    def _get_next_moves(self, board):
+        """
+        ボード上の有効なマス目のリストを取得する。
 
-    def __init__(self, board):
-        super().__init__(board)
-        self.face = "○"
+        Args:
+            board: ボード
+
+        Returns:
+            有効なマス目のリスト
+        """
+        next_moves = []
+        for r in range(board.size):
+            for c in range(board.size):
+                if board.is_valid_move(r, c, board.turn):
+                    next_moves.append((r, c))
+        return next_moves
 
     def move(self, board, piece):
         """
