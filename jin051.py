@@ -6,9 +6,11 @@ class mizukikun(OthelloAI):
     def __init__(self):
         self.face = '💧'  # 自分の好きな絵文字
         self.name = '瑞稀'  # 自分の好きな名前
+        
 class OchibiAI:
     def __init__(self):
-        self.face = '○'  # おちび
+        self.face = '🔥'  # おちび
+        self.face = 'おちび'
 
 
     def move(self, board, piece):
