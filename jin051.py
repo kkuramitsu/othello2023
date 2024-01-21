@@ -3,8 +3,8 @@ from othello2023.othello import *
 class mizukikun(OthelloAI):
 
     def __init__(self):
-        self.face = '💧' # 自分の好きな絵文字
-        self.name = '瑞稀' # 自分の好きな名前
+        self.face = "💧"  # 自分の好きな絵文字
+        self.name = "瑞稀"  # 自分の好きな名前
 
     def _get_next_moves(self, board):
         """
@@ -42,7 +42,7 @@ class mizukikun(OthelloAI):
 
 
 board = othello.Board()
-ai = OchibiAI(board)
+ai = mizukikun(board)
 
 while board.is_game_over() is False:
     move = ai.move(board, board.turn)
