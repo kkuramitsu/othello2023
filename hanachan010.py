@@ -196,58 +196,89 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 
-class minimaxAI(OthelloAI):
+class PandaSanAI(OthelloAI):
     def __init__(self):
-        self.face = '🐱'
-        self.name = 'name'
+        self.face = '🐼'
+        self.name = 'パンダさん'
 
 depth = 3
 
-def move(self, board, color: int)->tuple[int, int]:
+# 各マスに手動で重みを付ける
+weights = np.array([
+            [100, -20, 10, 5, 5, 10, -20, 100],
+            [-20, -50, -2, -2, -2, -2, -50, -20],
+            [10, -2, -1, -1, -1, -1, -2, 10],
+            [5, -2, -1, -1, -1, -1, -2, 5],
+            [5, -2, -1, -1, -1, -1, -2, 5],
+            [10, -2, -1, -1, -1, -1, -2, 10],
+            [-20, -50, -2, -2, -2, -2, -50, -20],
+            [100, -20, 10, 5, 5, 10, -20, 100]
+        ])
 
-  def minimax(board, depth, maximizing_player):
-      if depth == 0 or board.is_game_over():
-          return count_board(board, piece)
+def evaluate_board(self, board, player):
+        # 各プレイヤーに対する盤面の評価値を計算
+        opponent = 1 if player == 2 else 2
+        player_score = np.sum(board == player)
+        opponent_score = np.sum(board == opponent)
+        total_score = player_score - opponent_score
 
-      legal_moves = []
-      for i in range(8):
-          for j in range(8):
-              if board.is_valid_move(i, j):
-                  legal_moves.append((i, j))
+        # 各マスの重みを考慮して評価値を更新
+        weighted_score = np.sum(np.multiply(board, weights))
 
-      if maximizing_player:
-          max_eval = float('-inf')
-          for move in legal_moves:
-              new_board = copy.deepcopy(board)
-              new_board.make_move(*move)
-              eval = minimax(new_board, depth - 1, False)
-              max_eval = max(max_eval, eval)
-          return max_eval
-      else:
-          min_eval = float('inf')
-          for move in legal_moves:
-              new_board = copy.deepcopy(board)
-              new_board.make_move(*move)
-              eval = minimax(new_board, depth - 1, True)
-              min_eval = min(min_eval, eval)
-          return min_eval
+        # 四隅が相手の石で埋まっている場合、評価値を調整
+        corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        for corner in corners:
+            if board[corner] == opponent:
+                weighted_score -= 50
 
-  def find_best_move(board, depth):
-      legal_moves = []
-      for i in range(8):
-          for j in range(8):
-              if board.is_valid_move(i, j):
-                  legal_moves.append((i, j))
+        # 四隅が自分の石で埋まっている場合、評価値を増やす
+        for corner in corners:
+            if board[corner] == player:
+                weighted_score += 50
+        
+        # (0, 1), (0, 6), (1, 0), (1, 1), (1, 6), (1, 7), (6, 0), (6, 1), (6, 6), (6, 7), (7, 1), (7, 6) が相手の石で埋まっている場合、評価値を調整
+        for position in [(0, 1), (0, 6), (1, 0), (1, 1), (1, 6), (1, 7), (6, 0), (6, 1), (6, 6), (6, 7), (7, 1), (7, 6)]:
+            if board[position] == opponent:
+                weighted_score += 30
 
-      selected_move = legal_moves[0]
-      best_eval = float('-inf')
 
-      for move in legal_moves:
-          new_board = copy.deepcopy(board)
-          new_board.make_move(*move)
-          eval = minimax(new_board, depth - 1, False)
-          if eval > best_eval:
-              best_eval = eval
-              selected_move = move
+        return total_score + weighted_score
 
-      return selected_move
+def minmax(self, board, depth, alpha, beta, maximizing_player):
+        if depth == 0 or self.is_game_over(board):
+            return self.evaluate_board(board, maximizing_player)
+
+        possible_moves = self.get_possible_moves(board, maximizing_player)
+        if maximizing_player:
+            value = float('-inf')
+            for move in possible_moves:
+                new_board = self.make_move(board, move, maximizing_player)
+                value = max(value, self.minmax(new_board, depth - 1, alpha, beta, False))
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+            return value
+        else:
+            value = float('inf')
+            for move in possible_moves:
+                new_board = self.make_move(board, move, not maximizing_player)
+                value = min(value, self.minmax(new_board, depth - 1, alpha, beta, True))
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
+            return value
+
+def find_best_move(self, board, player):
+        possible_moves = self.get_possible_moves(board, player)
+        best_move = None
+        alpha = float('-inf')
+        beta = float('inf')
+
+        for move in possible_moves:
+            new_board = self.make_move(board, move, player)
+            value = self.minmax(new_board, self.max_depth, alpha, beta, False)
+            if value > alpha:
+                alpha = value
+                best_move = move
+
+        return best_move
