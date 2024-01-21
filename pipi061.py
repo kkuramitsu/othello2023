@@ -419,12 +419,29 @@ class Cat777(OthelloAI):
             if move in self.corners:
                 return move
 
-        if self.turn_count <= 24:
-            return self.improved_nega_alpha_ai.move(board, piece)
+        if self.turn_count < 7:
+            best_moves = []
+            min_flips = float('inf')
+            for move in valid_moves:
+                new_board = board.copy()
+                flips = flip_stones(new_board, *move, piece)
+                if len(flips) < min_flips:
+                    min_flips = len(flips)
+                    best_moves = [move]
+                elif len(flips) == min_flips:
+                    best_moves.append(move)
+            return random.choice(best_moves)
+
+        if 7 <= self.turn_count <= 24:
+            move = self.improved_nega_alpha_ai.move(board, piece)
+            if move in self.corners:
+                return move
+            else:
+                return move
 
         best_moves = []
         best_score = -float('inf')
-        for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai]:
+        for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai,self.improved_nega_alpha_ai]:
             move = ai.move(board, piece)
             if move:
                 new_board = board.copy()
@@ -443,61 +460,6 @@ class Cat777(OthelloAI):
             return random.choice(valid_moves)
         else:
             return random.choice(best_moves)
-
-
-class Cat551(OthelloAI):
-    def __init__(self, depth=7):
-        self.face = '👳'
-        self.name = 'ぱたん'
-        self.depth = depth
-        self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
-        self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)  # ImprovedNegaAlphaOthelloAIを使用
-        self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
-        # 定石の定義
-        self.opening_book = [
-            (2, 3), (2, 2), (3, 2), (4, 2),
-            (5, 2), (5, 3), (5, 4), (4, 5),
-            (3, 5), (2, 5), (2, 4)
-        ]
-        # 四隅の位置
-        self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-        # 手数のカウント
-        self.turn_count = 0
-
-    def move(self, board: np.array, piece: int) -> tuple[int, int]:
-        self.turn_count += 1
-        valid_moves = get_valid_moves(board, piece)
-        # 四隅に手がある場合は、それを選択
-        for move in valid_moves:
-            if move in self.corners:
-                return move
-
-        # 15手未満の時だけImprovedNegaAlphaOthelloAIの評価に従う
-        if self.turn_count <= 15:
-            return self.improved_nega_alpha_ai.move(board, piece)
-
-        # 四隅に手がなく、ImprovedNegaAlphaOthelloAIの評価に従う手もない場合は、他のAIの評価に従う
-        # ただし、その手が相手に四隅を取られる可能性を生む場合は避ける
-        best_moves = []
-        best_score = -float('inf')
-        for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai]:  # ImprovedNegaAlphaOthelloAIを除く
-            move = ai.move(board, piece)
-            if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]:  # 四隅の隣接マスを避ける
-                new_board = board.copy()
-                new_board[move] = piece
-                score = count_board(new_board, piece)
-                if score > best_score:
-                    best_score = score
-                    best_moves = [move]
-                elif score == best_score:
-                    best_moves.append(move)
-
-        # 最善の手がない場合は、ランダムに手を選択
-        if not best_moves:
-            return random.choice(valid_moves)
-        else:
-            return random.choice(best_moves)  # 最善の手が複数ある場合はランダムに選択
-
 
 
 class Cat12345(OthelloAI):
