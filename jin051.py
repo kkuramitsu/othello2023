@@ -1,15 +1,6 @@
 from othello2023.othello import OthelloAI
 
-class OchibiAI:
-    def __init__(self, name, face):
-        self.name = name
-        self.face = face
-
-    def move(self, board, piece):
-        # Your move logic here
-        return r, c
-
-class mizukikun(OthelloAI):
+class mizukkon(OthelloAI):
     def __init__(self):
         self.face = '💧'  # 自分の好きな絵文字
         self.name = '瑞稀'  # 自分の好きな名前
@@ -48,25 +39,6 @@ class mizukikun(OthelloAI):
                 min_eval = min(min_eval, eval)
             return min_eval
 
-    def game(player1, player2, N=8):
-        board = Board(N)
-        player1_instance = player1()
-        player2_instance = player2()
-
-        display_board(board, black=f'{player1_instance}', white=f'{player2_instance}')
-
-        while count_board(board, EMPTY) > 0:
-            if not board_play(player1_instance, board, BLACK):
-                break
-            if not board_play(player2_instance, board, WHITE):
-                break
-
-        print("Game Over")
-        print("Result:")
-        display_board(board, black=f'{player1_instance}', white=f'{player2_instance}')
-
-
-
     def move(self, board, piece):
         valid_moves = self._get_valid_moves(board, piece)
 
@@ -82,5 +54,3 @@ class mizukikun(OthelloAI):
                 best_move = move
 
         return best_move
-        
-    
