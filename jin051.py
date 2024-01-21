@@ -1,31 +1,4 @@
-class Board:
-    def __init__(self):
-        self.size = 8  # ボードのサイズ
-
-    def is_valid_move(self, r, c, piece):
-        # (省略)
-
-    def copy(self):
-        # (省略)
-
-    def play_move(self, move):
-        # (省略)
-
-    def is_game_over(self):
-        # (省略)
-
-    def turn(self):
-        # (省略)
-
-    def count_pieces(self, piece):
-        # (省略)
-
-class OthelloAI:
-    def __init__(self):
-        self.face = None
-
-    def move(self, board, piece):
-        raise NotImplementedError("move method must be implemented in the subclass")
+from othello2023.othello import OthelloAI
 
 class mizukikun(OthelloAI):
     def __init__(self):
@@ -81,14 +54,3 @@ class mizukikun(OthelloAI):
                 best_move = move
 
         return best_move
-
-# ゲームの実行
-board = Board()
-ai = mizukikun()
-while not board.is_game_over():
-    move = ai.move(board, board.turn())
-    board.play_move(move)
-
-print(board)
-
-
