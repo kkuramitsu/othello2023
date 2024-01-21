@@ -397,49 +397,59 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
             return random.choice(valid_corner_moves)
         return None
 
-# class Cat777(OthelloAI):
-#     def __init__(self, depth=3):
-#         self.face = '👳'
-#         self.name = 'ぱたん'
-#         self.depth = depth
-#         self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
-#         self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
-#         self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
-#         self.opening_book = [
-#             (2, 3), (2, 2), (3, 2), (4, 2),
-#             (5, 2), (5, 3), (5, 4), (4, 5),
-#             (3, 5), (2, 5), (2, 4)
-#         ]
-#         self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-#         self.turn_count = 0
+import random
 
-#     def move(self, board: np.array, piece: int) -> tuple[int, int]:
-#         self.turn_count += 1
-#         valid_moves = [move for move in get_valid_moves(board, piece) if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
-#         for move in valid_moves:
-#             if move in self.corners:
-#                 return move
-#         if self.turn_count <= 24:
-#             return self.improved_nega_alpha_ai.move(board, piece)
-#         best_moves = []
-#         best_score = -float('inf')
-#         for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai]:
-#             move = ai.move(board, piece)
-#             if move:
-#                 new_board = board.copy()
-#                 new_board[move] = piece
-#                 score = count_board(new_board, piece)
-#                 if score > best_score:
-#                     best_score = score
-#                     best_moves = [move]
-#                 elif score == best_score:
-#                     best_moves.append(move)
-#         if self.turn_count <= 20:
-#             best_moves = [move for move in best_moves if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
-#         if not best_moves:
-#             return random.choice(valid_moves)
-#         else:
-#             return random.choice(best_moves)
+class Cat777(OthelloAI):
+    def __init__(self, depth=3):
+        self.face = '👳'
+        self.name = 'ぱたん'
+        self.depth = depth
+        self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
+        self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
+        self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
+        self.opening_book = [
+            (2, 3), (2, 2), (3, 2), (4, 2),
+            (5, 2), (5, 3), (5, 4), (4, 5),
+            (3, 5), (2, 5), (2, 4)
+        ]
+        self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        self.turn_count = 0
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        self.turn_count += 1
+        if self.turn_count <= len(self.opening_book):
+            # 序盤の棋譜に従って指す
+            return self.opening_book[self.turn_count - 1]
+
+        valid_moves = [move for move in get_valid_moves(board, piece) if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
+        for move in valid_moves:
+            if move in self.corners:
+                return move
+
+        if self.turn_count <= 24:
+            return self.improved_nega_alpha_ai.move(board, piece)
+
+        best_moves = []
+        best_score = -float('inf')
+        for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai]:
+            move = ai.move(board, piece)
+            if move:
+                new_board = board.copy()
+                new_board[move] = piece
+                score = count_board(new_board, piece)
+                if score > best_score:
+                    best_score = score
+                    best_moves = [move]
+                elif score == best_score:
+                    best_moves.append(move)
+
+        if self.turn_count <= 20:
+            best_moves = [move for move in best_moves if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
+
+        if not best_moves:
+            return random.choice(valid_moves)
+        else:
+            return random.choice(best_moves)
 
 class Cat551(OthelloAI):
     def __init__(self, depth=7):
