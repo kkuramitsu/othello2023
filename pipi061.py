@@ -397,8 +397,8 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
             return random.choice(valid_corner_moves)
         return None
 
-class Cat777(OthelloAI):
-    def __init__(self, depth=6):
+class CombinedOthelloAI(OthelloAI):
+    def __init__(self, depth=10):
         self.face = '👳'
         self.name = 'ぱたん'
         self.depth = depth
@@ -419,7 +419,7 @@ class Cat777(OthelloAI):
         for move in valid_moves:
             if move in self.corners:
                 return move
-        if self.turn_count <= 20:
+        if self.turn_count <= 25:
             return self.improved_nega_alpha_ai.move(board, piece)
         best_moves = []
         best_score = -float('inf')
@@ -434,12 +434,12 @@ class Cat777(OthelloAI):
                     best_moves = [move]
                 elif score == best_score:
                     best_moves.append(move)
+        if self.turn_count <= 20:
+            best_moves = [move for move in best_moves if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
         if not best_moves:
             return random.choice(valid_moves)
         else:
             return random.choice(best_moves)
-
-
 
 
 
