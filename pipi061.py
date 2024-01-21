@@ -400,7 +400,7 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
 class Cat777(OthelloAI):
     def __init__(self, depth=6):
         self.face = '👳'
-        self.name = 'aaa'
+        self.name = 'ぱたん'
         self.depth = depth
         self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
         self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
@@ -419,7 +419,7 @@ class Cat777(OthelloAI):
         for move in valid_moves:
             if move in self.corners:
                 return move
-        if self.turn_count <= 15:
+        if self.turn_count <= 20:
             return self.improved_nega_alpha_ai.move(board, piece)
         best_moves = []
         best_score = -float('inf')
