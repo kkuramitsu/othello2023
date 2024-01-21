@@ -413,9 +413,6 @@ class Cat777(OthelloAI):
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         self.turn_count += 1
-
-        if self.turn_count == 1:
-            return 4, 5
             
         valid_moves = [move for move in get_valid_moves(board, piece) if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]]
         for move in valid_moves:
