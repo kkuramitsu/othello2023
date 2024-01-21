@@ -1,5 +1,3 @@
-import othello2023.othello as othello
-
 class mizukikun(OthelloAI):
 
     def __init__(self, ):
