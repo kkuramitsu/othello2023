@@ -2,7 +2,7 @@ import othello2023.othello as othello
 
 class mizukikun(OthelloAI):
 
-    def __init__(self,face,name):
+    def __init__(self):
         self.face = '💧' # 自分の好きな絵文字
         self.name = '瑞稀' # 自分の好きな名前
 
