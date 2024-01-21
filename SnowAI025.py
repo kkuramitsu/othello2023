@@ -194,7 +194,7 @@ class SnowAI(OthelloAI):
         #四隅の隣
         elif len(set(snow[3]+valid_moves))<len(snow[3]+valid_moves):
           pre=list()
-          for i in range():
+          for i in range(3):
             look=snow[0][i]
             if board[look[0]][look[1]]==my:
               pre=pre+[snow[3][i*2]]+snow[3][i*2+1]
