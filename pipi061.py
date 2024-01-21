@@ -397,7 +397,7 @@ class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
             return random.choice(valid_corner_moves)
         return None
 
-class CombinedOthelloAI(OthelloAI):
+class Cat777(OthelloAI):
     def __init__(self, depth=10):
         self.face = '👳'
         self.name = 'ぱたん'
