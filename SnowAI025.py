@@ -191,8 +191,8 @@ class SnowAI(OthelloAI):
             cc = collections.Counter(snow[0]+valid_moves)
             return [x for x in snow[0]+valid_moves if cc[x] > 1][0]
 
-                #四隅の隣
-        elif len(set(snow[1]+valid_moves))<len(snow[1]+valid_moves):
+        #四隅の隣
+        elif len(set(snow[3]+valid_moves))<len(snow[3]+valid_moves):
           pre=list()
           for i in range():
             look=snow[0][i]
