@@ -179,28 +179,12 @@ class SnowAI(OthelloAI):
 
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
-        snow=[[(0,0),(0,5),(5,0),(5,5)],[(0,2),(0,3),(2,0),(3,0),(2,5),(3,5),(5,2),(5,3)],
-         [(1,2),(1,3),(2,1),(2,4),(3,1),(3,4),(4,2),(4,3)],[(0,1),(1,0),(0,4),(1,5),(5,1),(4,0),(4,5),(5,4)]]
+        snow=[[(0,0),(0,5),(5,0),(5,5)],[(0,2),(0,3),(2,0),(3,0),(2,5),(3,5),(5,2),(5,3)],[(1,2),(1,3),(2,1),(2,4),(3,1),(3,4),(4,2),(4,3)]]
         valid_moves = get_valid_moves(board, piece)
-        if board[2][2]+board[2][3]+board[3][3]+board[3][4]==2:
-          my=-1
-        else:
-          my=1
-        #四隅
-        if len(set(snow[0]+valid_moves))<len(snow[0]+valid_moves):
-            cc = collections.Counter(snow[0]+valid_moves)
-            return [x for x in snow[0]+valid_moves if cc[x] > 1][0]
-
-        #四隅の隣
-        elif len(set(snow[3]+valid_moves))<len(snow[3]+valid_moves):
-          pre=list()
-          for i in range(3):
-            look=snow[0][i]
-            if board[look[0]][look[1]]==my:
-              pre=pre+[snow[3][i*2]]+snow[3][i*2+1]
-          if len(set(pre+valid_moves))<len(pre+valid_moves):
-            cc = collections.Counter(pre+valid_moves)
-            return [x for x in pre+valid_moves if cc[x] > 1][0]
+        for i in range(len(snow)):
+          if len(set(snow[i]+valid_moves))<len(snow[i]+valid_moves):
+            cc = collections.Counter(snow[i]+valid_moves)
+            return [x for x in snow[i]+valid_moves if cc[x] > 1][0]
 
         return get_valid_moves(board, piece)[0]
 
