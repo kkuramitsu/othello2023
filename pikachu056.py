@@ -223,7 +223,7 @@ class OchibiAI(OthelloAI):
         return valid_moves[0]
 
 class You(OthelloAI):
-    def __init__(self):
+    def __init__(self,name,face):
 
         self.face = '🐶' # 自分の好きな絵文字
         self.name = 'アーニャ' # 自分の好きな名前
