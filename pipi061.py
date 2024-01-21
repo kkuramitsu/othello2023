@@ -408,9 +408,7 @@ class Cat777(OthelloAI):
         self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
         self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
         self.opening_book = [
-            (2, 3), (2, 2), (3, 2), (4, 2),
-            (5, 2), (5, 3), (5, 4), (4, 5),
-            (3, 5), (2, 5), (2, 4)
+            (5,4)
         ]
         self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
         self.turn_count = 0
