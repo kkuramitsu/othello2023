@@ -191,6 +191,17 @@ class SnowAI(OthelloAI):
             cc = collections.Counter(snow[0]+valid_moves)
             return [x for x in snow[0]+valid_moves if cc[x] > 1][0]
 
+                #四隅の隣
+        elif len(set(snow[1]+valid_moves))<len(snow[1]+valid_moves):
+          pre=list()
+          for i in range():
+            look=snow[0][i]
+            if board[look[0]][look[1]]==my:
+              pre=pre+[snow[3][i*2]]+snow[3][i*2+1]
+          if len(set(pre+valid_moves))<len(pre+valid_moves):
+            cc = collections.Counter(pre+valid_moves)
+            return [x for x in pre+valid_moves if cc[x] > 1][0]
+
         return get_valid_moves(board, piece)[0]
 
 
