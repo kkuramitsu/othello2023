@@ -181,7 +181,7 @@ class SnowAI(OthelloAI):
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         snow=[[(0,0),(0,5),(5,0),(5,5)],[(0,2),(0,3),(2,0),(3,0),(2,5),(3,5),(5,2),(5,3)],[(1,2),(1,3),(2,1),(2,4),(3,1),(3,4),(4,2),(4,3)]]
         valid_moves = get_valid_moves(board, piece)
-        for i in range(2):
+        for i in range(len(snow):
           if len(set(snow[i]+valid_moves))<len(snow[i]+valid_moves):
             cc = collections.Counter(snow[i]+valid_moves)
             return [x for x in snow[i]+valid_moves if cc[x] > 1][0]
