@@ -196,16 +196,58 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 
-class MaxAI(OthelloAI):
+class minimaxAI(OthelloAI):
     def __init__(self):
-        self.face = '🐈'
+        self.face = '🐱'
         self.name = 'name'
 
-    def move(self, board, color: int)->tuple[int, int]:
-        """
-        ボードが与えられたとき、どこに置くか(row, col)を返す
-        """
-        valid_moves = get_valid_moves(board, color)
-        # 一番多く取れるところを選ぶ
-        selected_move = find_eagar_move(board, color)
-        return selected_move
+depth = 3
+
+def move(self, board, color: int)->tuple[int, int]:
+
+  def minimax(board, depth, maximizing_player):
+      if depth == 0 or board.is_game_over():
+          return count_board(board, piece)
+
+      legal_moves = []
+      for i in range(8):
+          for j in range(8):
+              if board.is_valid_move(i, j):
+                  legal_moves.append((i, j))
+
+      if maximizing_player:
+          max_eval = float('-inf')
+          for move in legal_moves:
+              new_board = copy.deepcopy(board)
+              new_board.make_move(*move)
+              eval = minimax(new_board, depth - 1, False)
+              max_eval = max(max_eval, eval)
+          return max_eval
+      else:
+          min_eval = float('inf')
+          for move in legal_moves:
+              new_board = copy.deepcopy(board)
+              new_board.make_move(*move)
+              eval = minimax(new_board, depth - 1, True)
+              min_eval = min(min_eval, eval)
+          return min_eval
+
+  def find_best_move(board, depth):
+      legal_moves = []
+      for i in range(8):
+          for j in range(8):
+              if board.is_valid_move(i, j):
+                  legal_moves.append((i, j))
+
+      selected_move = legal_moves[0]
+      best_eval = float('-inf')
+
+      for move in legal_moves:
+          new_board = copy.deepcopy(board)
+          new_board.make_move(*move)
+          eval = minimax(new_board, depth - 1, False)
+          if eval > best_eval:
+              best_eval = eval
+              selected_move = move
+
+      return selected_move
