@@ -382,19 +382,7 @@ class You(OthelloAI):
         valid_moves = get_valid_moves(board, color)
         selected_move = random.choice(valid_moves)
         return selected_move
-    def move(self, board, color: int) -> tuple[int, int]:
-        """
-        ボードの状態と色(color)が与えられたとき、
-        どこに置くか人間に尋ねる(row, col)
-        ただし、角周辺には置かないようにする
-        """
-        valid_moves = get_valid_moves(board, color)
 
-        # 角に近い座標を除外
-        valid_moves = [move for move in valid_moves if move not in [(0, 0), (0, 7), (7, 0), (7, 7)]]
-
-        # ランダムに選ぶ
-        selected_move = random.choice(valid_moves)
         return selected_move
 
 
