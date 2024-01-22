@@ -206,7 +206,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 import random
 
 class HiMERUAI(OthelloAI):
-    def __init__(self):
+    def __init__(self, face, name):
         self.face = '☕'
         self.name = 'HiMERU'
 
