@@ -5,20 +5,15 @@ import time
 import os
 import random
 
-BLACK = -1  # 黒
-WHITE = 1  # 白
-EMPTY = 0  # 空
+BLACK = -1  
+WHITE = 1   
+EMPTY = 0   
 
-def init_board(N:int=8):
-    """
-    ボードを初期化
-    N: ボードの大きさ(N=8がデフォルト値)
-    """
-    # Initialize the board with an 8x8 numpy array
+def init_board(N: int = 8):
+
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
-    C0 = N//2
-    C1 = C0-1
+    C0 = N // 2
+    C1 = C0 - 1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
     board[C1, C0], board[C0, C1] = BLACK, BLACK  # Black
     return board
@@ -37,26 +32,24 @@ stone_codes = [
 ]
 
 def stone(piece):
-    return stone_codes[piece+1]
+    return stone_codes[piece + 1]
 
 def display_clear():
     os.system('clear')
     clear_output(wait=True)
 
-BLACK_NAME=''
-WHITE_NAME=''
+BLACK_NAME = ''
+WHITE_NAME = ''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
-    """
-    オセロ盤を表示している
-    """
+
     global BLACK_NAME, WHITE_NAME
     if clear:
         clear_output(wait=True)
     if black:
-        BLACK_NAME=black
+        BLACK_NAME = black
     if white:
-        WHITE_NAME=white
+        WHITE_NAME = white
     for i, row in enumerate(board):
         for piece in row:
             print(stone(piece), end='')
@@ -69,7 +62,7 @@ def display_board(board, clear=True, sleep=0, black=None, white=None):
         elif i == 4:
             print(f'   {stone(WHITE)}: {count_board(board, WHITE):2d}')
         else:
-            print()  # New line after each row
+            print()  
     if sleep > 0:
         time.sleep(sleep)
 
@@ -77,11 +70,11 @@ def all_positions(board):
     N = len(board)
     return [(r, c) for r in range(N) for c in range(N)]
 
-# Directions to check (vertical, horizontal)
+
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
-    # Check if the position is within the board and empty
+
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
         return False
@@ -139,27 +132,91 @@ class OthelloAI(object):
     def __repr__(self):
         return f"{self.face}{self.name}"
 
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
+        return random.choice(valid_moves) if valid_moves else (0, 0)
 
-    def say(self, board: np.array, piece: int)->str:
+    def say(self, board: np.array, piece: int) -> str:
         if count_board(board, piece) >= count_board(board, -piece):
-            return 'わーい！'
+            return 'やったー'
         else:
-            return '(T_T)'
+            return 'がーん'
 
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
         self.face = face
         self.name = name
 
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-        """
-        [0]なので先頭の
-        """
+        return random.choice(valid_moves) if valid_moves else (0, 0)
+
+class NyaaAI(OthelloAI):
+    def __init__(self, face, name, depth=3):
+        super().__init__(face, name)
+        self.depth = depth
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        if not valid_moves:
+            return 0, 0
+
+
+        _, best_move = self.minimax(board, piece, self.depth, float('-inf'), float('inf'), maximizing=True)
+        return best_move
+
+    def minimax(self, board, piece, depth, alpha, beta, maximizing):
+        if depth == 0 or len(get_valid_moves(board, piece)) == 0:
+            return self.evaluate(board, piece), None
+
+        valid_moves = get_valid_moves(board, piece)
+
+        if maximizing:
+            max_eval = float('-inf')
+            best_move = None
+
+            for move in valid_moves:
+                new_board = board.copy()
+                r, c = move
+                stones_to_flip = flip_stones(new_board, r, c, piece)
+                new_board[r, c] = piece
+
+                eval, _ = self.minimax(new_board, piece, depth - 1, alpha, beta, maximizing=False)
+
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+
+            return max_eval, best_move
+        else:
+            min_eval = float('inf')
+            best_move = None
+
+            for move in valid_moves:
+                new_board = board.copy()
+                r, c = move
+                stones_to_flip = flip_stones(new_board, r, c, piece)
+                new_board[r, c] = piece
+
+                eval, _ = self.minimax(new_board, piece, depth - 1, alpha, beta, maximizing=True)
+
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+
+            return min_eval, best_move
+
+    def evaluate(self, board, piece):
+
+        return count_board(board, piece)
 
 
 def board_play(player: OthelloAI, board, piece: int):
@@ -173,6 +230,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -190,7 +248,7 @@ def comment(player1: OthelloAI, player2: OthelloAI, board):
     except:
         pass
 
-def game(player1: OthelloAI, player2: OthelloAI,N=6):
+def game(player1: OthelloAI, player2: OthelloAI, N=8):
     board = init_board(N)
     display_board(board, black=f'{player1}', white=f'{player2}')
     while count_board(board, EMPTY) > 0:
@@ -201,74 +259,5 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
-
-class hanAI(OthelloAI):
-    def __init__(self):
-        self.face = '🐶'
-        self.name = 'はん'
-
-    import random
-
-    # 評価関数
-    def evaluate(board):
-
-        score = 0
-        
-        # 石の数
-        my_stones = len(my_positions)
-        op_stones = len(op_positions)
-        score += (my_stones - op_stones) * 100
-        
-        # 角の位置ボーナス
-        if board[0,0] in my_positions:
-            score += 500
-            
-        # 連の石の数に応じたボーナス
-        for line in lines:
-            my_count = len([x for x in line if x in my_positions]) 
-            if my_count >= 3:
-                score += my_count * 30
-                
-        # 次の手で失う石の避ける
-        avoid_positions = get_dangerous_positions(board)
-        if next_move in avoid_positions:
-            score -= 80
-            
-        return score
-
-    # Move orderingのための評価関数
-    def ordering_evaluate(move):
-        # マスの重要度などからpriorityを算出
-        priority = 0
-        return priority
-
-    # Move orderingによるソート  
-    def order_moves(moves):
-        moves.sort(key=ordering_evaluate, reverse=True) 
-        return moves
-
-    # アルファベータ法
-    def alphabeta(node, depth, α, β): 
-        if node.is_terminal():
-            return evaluate(node)
-
-        if node.player == my_player:
-            v = -inf
-            for child in order_moves(node.moves):
-                v = max(v, alphabeta(child, depth-1, α, β)) 
-                α = max(α, v)
-                if α >= β: 
-                    break
-            return v
-        
-        else:
-            v = inf
-            for child in order_moves(node.moves):
-                v = min(v, alphabeta(child, depth-1, α, β))
-                β = min(β, v) 
-                if α >= β:
-                    break
-            return v
-      
-
-
+game(NyaaAI("😼", "にゃーん"), OchibiAI("👶", "おちび"), N=8)
+Footer

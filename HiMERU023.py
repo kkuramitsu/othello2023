@@ -5,6 +5,7 @@ import time
 import os
 import random
 
+
 BLACK = -1
 WHITE = 1
 EMPTY = 0
@@ -17,6 +18,7 @@ def init_board(N:int=8):
     # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
     # Set up the initial four stones
+
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -30,10 +32,12 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
+
 stone_codes = [
     f'{BG_EMPTY}⚫️{BG_RESET}',
     f'{BG_EMPTY}・{BG_RESET}',
     f'{BG_EMPTY}⚪️{BG_RESET}',
+
 ]
 
 def stone(piece):
@@ -48,7 +52,9 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
+
     オセロボードを表示する
+
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -81,9 +87,11 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
+
     """
     boardが与えられたとき、row行col列目にplayerの色の石が置けるかどうか判定する
     """
+
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -211,6 +219,7 @@ class HiMERUAI(OthelloAI):
     def __init__(self, face, name):
         self.face = '☕'
         self.name = 'HiMERU'
+
 
     def move(self, board, color: int)->tuple[int, int]:
         """

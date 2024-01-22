@@ -213,10 +213,200 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
-class taeAI(OthelloAI):
-    def __init__(self,depth=7):
-        self.face = '⛄'
-        self.name = 'テヒョン'
+class NWSOthelloAI(OthelloAI):
+    def __init__(self, face, name, depth=3):
+        super().__init__(face, name)
+        self.depth = depth
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
+        return best_move
+
+    def evaluate(self, board, piece):
+        # Simple evaluation function: count the number of stones for the current player
+        return count_board(board, piece)
+
+    def negamax(self, board, piece, depth, alpha, beta):
+        if depth == 0 or not get_valid_moves(board, piece):
+            return self.evaluate(board, piece), None
+
+        max_eval = -float('inf')
+        best_move = None
+
+        for move in get_valid_moves(board, piece):
+            new_board = board.copy()
+            new_board[move] = piece
+            flipped_stones = flip_stones(new_board, *move, piece)
+            for r, c in flipped_stones:
+                new_board[r, c] = piece
+
+            eval_ = -self.negamax_with_null_window(new_board, -piece, depth - 1, -beta, -alpha)
+            eval_ = -eval_
+
+            if eval_ > max_eval:
+                max_eval = eval_
+                best_move = move
+
+            alpha = max(alpha, eval_)
+            if alpha >= beta:
+                break
+
+        return max_eval, best_move
+
+    def negamax_with_null_window(self, board, piece, depth, alpha, beta):
+        if depth == 0 or not get_valid_moves(board, piece):
+            return self.evaluate(board, piece)
+
+        for move in get_valid_moves(board, piece):
+            new_board = board.copy()
+            new_board[move] = piece
+            flipped_stones = flip_stones(new_board, *move, piece)
+            for r, c in flipped_stones:
+                new_board[r, c] = piece
+
+            eval_ = -self.negamax_with_null_window(new_board, -piece, depth - 1, -alpha-1, -alpha)
+            eval_ = -eval_
+
+            if alpha < eval_ < beta:
+                eval_ = -self.negamax_with_null_window(new_board, -piece, depth - 1, -beta, -eval_)
+                eval_ = -eval_
+
+            if eval_ > alpha:
+                alpha = eval_
+
+            if alpha >= beta:
+                break
+
+        return alpha
+
+class EdgeWeightedNegaAlphaOthelloAI(OthelloAI):
+    def __init__(self, face, name, depth=8):
+        super().__init__(face, name)
+        self.depth = depth
+        # 辺の重みを設定
+        self.edge_weights = [
+            [4, 3, 2, 2, 2, 2, 3, 4],
+            [3, 2, 1, 1, 1, 1, 2, 3],
+            [2, 1, 0, 0, 0, 0, 1, 2],
+            [2, 1, 0, 0, 0, 0, 1, 2],
+            [2, 1, 0, 0, 0, 0, 1, 2],
+            [2, 1, 0, 0, 0, 0, 1, 2],
+            [3, 2, 1, 1, 1, 1, 2, 3],
+            [4, 3, 2, 2, 2, 2, 3, 4]
+        ]
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
+        return best_move
+
+    def evaluate(self, board, piece):
+        # 各辺の8マスを合わせて評価
+        total_eval = 0
+        for i in range(8):
+            for j in range(8):
+                total_eval += self.edge_weights[i][j] * board[i, j]
+        return total_eval
+
+    def negamax(self, board, piece, depth, alpha, beta):
+        if depth == 0 or not get_valid_moves(board, piece):
+            return self.evaluate(board, piece), None
+
+        max_eval = -float('inf')
+        best_move = None
+
+        for move in get_valid_moves(board, piece):
+            new_board = board.copy()
+            new_board[move] = piece
+            flipped_stones = flip_stones(new_board, *move, piece)
+            for r, c in flipped_stones:
+                new_board[r, c] = piece
+
+            eval_, _ = self.negamax(new_board, -piece, depth - 1, -beta, -alpha)
+
+            eval_ = -eval_  # 修正：ここで評価値の符号を反転
+
+            if eval_ > max_eval:
+                max_eval = eval_
+                best_move = move
+
+            alpha = max(alpha, eval_)
+            if alpha >= beta:
+                break
+
+        return max_eval, best_move
+
+
+class ImprovedNegaAlphaOthelloAI(NegaAlphaOthelloAI):
+    def __init__(self, face, name, depth=3, prioritize_corners=True):
+        super().__init__(face, name, depth)
+        self.prioritize_corners = prioritize_corners
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        if self.prioritize_corners:
+            corner_move = self.choose_corner_move(board, piece)
+            if corner_move:
+                return corner_move
+
+        _, best_move = self.negamax(board, piece, self.depth, -float('inf'), float('inf'))
+        return best_move
+
+    def choose_corner_move(self, board, piece):
+        corner_moves = [(0, 0), (0, len(board) - 1), (len(board) - 1, 0), (len(board) - 1, len(board) - 1)]
+        valid_corner_moves = [move for move in corner_moves if is_valid_move(board, move[0], move[1], piece)]
+
+        if valid_corner_moves:
+            return random.choice(valid_corner_moves)
+        return None
+
+class Cat777(OthelloAI):
+    def __init__(self, depth=6):
+        self.face = '👳'
+        self.name = '一般JD_N'
+        self.depth = depth
+        self.nwso_ai = NWSOthelloAI(self.face, self.name, depth)
+        self.improved_nega_alpha_ai = ImprovedNegaAlphaOthelloAI(self.face, self.name, depth)
+        self.edge_weighted_nega_alpha_ai = EdgeWeightedNegaAlphaOthelloAI(self.face, self.name, depth)
+        self.opening_book = [
+            (2, 3), (2, 2), (3, 2), (4, 2),
+            (5, 2), (5, 3), (5, 4), (4, 5),
+            (3, 5), (2, 5), (2, 4)
+        ]
+        self.corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        self.turn_count = 0
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        self.turn_count += 1
+        valid_moves = get_valid_moves(board, piece)
+        for move in valid_moves:
+            if move in self.corners:
+                return move
+        if self.turn_count <= 15:
+            return self.improved_nega_alpha_ai.move(board, piece)
+        best_moves = []
+        best_score = -float('inf')
+        for ai in [self.nwso_ai, self.edge_weighted_nega_alpha_ai]:
+            move = ai.move(board, piece)
+            if move not in [(0, 1), (1, 0), (1, 1), (0, 6), (1, 7), (1, 6), (6, 0), (7, 1), (6, 1), (6, 7), (7, 6), (6, 6)]:
+                new_board = board.copy()
+                new_board[move] = piece
+                score = count_board(new_board, piece)
+                if score > best_score:
+                    best_score = score
+                    best_moves = [move]
+                elif score == best_score:
+                    best_moves.append(move)
+        if not best_moves:
+            return random.choice(valid_moves)
+        else:
+            return random.choice(best_moves)
+
+
+
+
+class Cat12345(OthelloAI):
+    def __init__(self,depth=6):
+        self.face = '👳'
+        self.name = 'aaa'
         self.depth = depth
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
@@ -254,3 +444,5 @@ class taeAI(OthelloAI):
         # Implement your board evaluation function
         # This is a placeholder; you should replace it with your evaluation logic
         return count_board(board, piece) - count_board(board, -piece)
+
+

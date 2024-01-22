@@ -4,17 +4,14 @@ from IPython.display import clear_output
 import time
 import os
 import random
+import traceback
 
-BLACK = -1  # 黒
-WHITE = 1  # 白
-EMPTY = 0  # 空
+BLACK = -1 #黒
+WHITE = 1 #白
+EMPTY = 0
 
 def init_board(N:int=8):
-    """
-    ボードを初期化
-    N: ボードの大きさ(N=8がデフォルト値)
-    """
-    # Initialize the board with an 8x8 numpy array
+    # ボードを初期化 with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
     # Set up the initial four stones
     C0 = N//2
@@ -30,10 +27,16 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
+
 stone_codes = [
-    f'{BG_EMPTY}⚫️{BG_RESET}',
-    f'{BG_EMPTY}🟩{BG_RESET}',
-    f'{BG_EMPTY}⚪️{BG_RESET}',
+   f'{BG_EMPTY}⚫️{BG_RESET}',
+   f'{BG_EMPTY}🟩{BG_RESET}',
+   f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
 
 def stone(piece):
@@ -48,7 +51,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    オセロ盤を表示している
+    オセロ盤を表示している.
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -145,21 +148,21 @@ class OthelloAI(object):
 
     def say(self, board: np.array, piece: int)->str:
         if count_board(board, piece) >= count_board(board, -piece):
-            return 'わーい！'
+            return 'やったー'
         else:
-            return '(T_T)'
+            return 'がーん'
 
 class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
+    def __init__(self, face, name, depth=6):
+      self.face = '🍑'
+      self.name = 'もも'
+   # def __init__(self, face, name):
+      #  self.face = face
+       # self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
-        """
-        [0]なので先頭の
-        """
 
 
 def board_play(player: OthelloAI, board, piece: int):
@@ -171,8 +174,9 @@ def board_play(player: OthelloAI, board, piece: int):
         start_time = time.time()
         r, c = player.move(board.copy(), piece)
         end_time = time.time()
-    except:
+    except Exception as e:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        print(traceback.format_exc())
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -202,73 +206,123 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
 
 
 
-class hanAI(OthelloAI):
+# 危険エリア回避
+class NamachaAI(OthelloAI):
     def __init__(self):
-        self.face = '🐶'
-        self.name = 'はん'
+       self.face = '☕'
+       self.name = 'サブなまちゃまー'
+    #def __init__(self, face, name):
+     #   self.face = face
+      #  self.name = name
 
-    import random
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        best_moves = self.get_best_moves(board, piece)
+        return best_moves[0]
 
-    # 評価関数
-    def evaluate(board):
+    def get_yellow_area(self, N):
+        return [(0, 1), (0, N-2), (1, 0), (1, N-1), (N-2, 0), (N-2, N-1), (N-1, 1), (N-1, N-2)]
 
-        score = 0
-        
-        # 石の数
-        my_stones = len(my_positions)
-        op_stones = len(op_positions)
-        score += (my_stones - op_stones) * 100
-        
-        # 角の位置ボーナス
-        if board[0,0] in my_positions:
-            score += 500
-            
-        # 連の石の数に応じたボーナス
-        for line in lines:
-            my_count = len([x for x in line if x in my_positions]) 
-            if my_count >= 3:
-                score += my_count * 30
-                
-        # 次の手で失う石の避ける
-        avoid_positions = get_dangerous_positions(board)
-        if next_move in avoid_positions:
-            score -= 80
-            
-        return score
+    def get_red_area(self, N):
+        return [(1, 1), (1, N-2), (N-2, 1), (N-2, N-2)]
 
-    # Move orderingのための評価関数
-    def ordering_evaluate(move):
-        # マスの重要度などからpriorityを算出
-        priority = 0
-        return priority
+    def get_best_moves(self, board, player, N=6):
+        #置ける場所を取得する
+        valid_moves = get_valid_moves(board, player)
 
-    # Move orderingによるソート  
-    def order_moves(moves):
-        moves.sort(key=ordering_evaluate, reverse=True) 
-        return moves
-
-    # アルファベータ法
-    def alphabeta(node, depth, α, β): 
-        if node.is_terminal():
-            return evaluate(node)
-
-        if node.player == my_player:
-            v = -inf
-            for child in order_moves(node.moves):
-                v = max(v, alphabeta(child, depth-1, α, β)) 
-                α = max(α, v)
-                if α >= β: 
-                    break
-            return v
-        
+        #角に置かれる可能性があるエリアを除外
+        #参考(https://www.bodoge-intl.com/strategy/reverse/)
+        removed_danger_area = [piece for piece in valid_moves if piece not in self.get_red_area(N) and piece not in self.get_yellow_area(N)]
+        if removed_danger_area:
+            return removed_danger_area
         else:
-            v = inf
-            for child in order_moves(node.moves):
-                v = min(v, alphabeta(child, depth-1, α, β))
-                β = min(β, v) 
-                if α >= β:
-                    break
-            return v
-      
+            #レッドエリアのみ除外
+            removed_red_area = [piece for piece in valid_moves if piece not in self.get_red_area(N)]
+            if removed_red_area:
+                return removed_red_area
+            else:
+                return valid_moves
 
+# ゲーム木・ミニマックス法
 
+def display_move_no_display(board, row, col, player):
+    """
+    ゲーム木のノード作成のために石を置いた後の盤面をシミュレートする
+    """
+    stones_to_flip = flip_stones(board, row, col, player)
+    board[row, col] = player
+    #display_board(board, sleep=0.3)
+    for r, c in stones_to_flip:
+        board[r, c] = player
+        #display_board(board, sleep=0.1)
+    #display_board(board, sleep=0.6)
+
+class GameTreeNode:
+    def __init__(self, board, player, move=None):
+        self.board = board
+        self.player = player
+        self.move = move
+        self.children = []
+        self.score = None
+
+    def create_children(self, depth):
+        """
+        ゲーム木を再起呼び出しで作成する
+        """
+        if depth == 0 or count_board(self.board, EMPTY) == 0:
+            self.score = evaluate_board(self.board)
+            return
+
+        for move in get_valid_moves(self.board, self.player):
+            new_board = self.board.copy()
+            display_move_no_display(new_board, *move, self.player)
+            child_node = GameTreeNode(new_board, -self.player, move)
+            self.children.append(child_node)
+            child_node.create_children(depth - 1)
+
+def evaluate_board(board):
+    """
+    ゲーム木のノードのスコアを算出する評価関数
+    """
+    return count_board(board, BLACK) - count_board(board, WHITE)
+
+def minimax(node, depth, maximizingPlayer, alpha=float('-inf'), beta=float('inf')):
+    """
+    ミニマックスアルゴリズムでスコアを算出する
+    """
+    if depth == 0 or node.children == []:
+        return evaluate_board(node.board)
+
+    if maximizingPlayer:
+        maxEval = float('-inf')
+        for child in node.children:
+            eval = minimax(child, depth-1, False, alpha, beta)
+            maxEval = max(maxEval, eval)
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break
+        return maxEval
+    else:
+        minEval = float('inf')
+        for child in node.children:
+            eval = minimax(child, depth-1, True, alpha, beta)
+            minEval = min(minEval, eval)
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break
+        return minEval
+
+class NamachaAI2(OthelloAI):
+    def __init__(self, face, name, depth=6):
+       self.face = "🍵"
+       self.name = 'なまちゃまー'
+   # def __init__(self, face, name, depth=6):
+    #    super().__init__(face, name)
+     #   self.depth = depth
+
+    def move(self, board, piece):
+        # 現在の盤面で有効な手のリストを取得
+        valid_moves = get_valid_moves(board, piece)
+
+        # 有効な手がない場合はNoneを返す
+        if not valid_moves:
+            return None
