@@ -202,13 +202,15 @@ import random
 class springAI(OthelloAI):
 
     class Node:
-      def __init__(self, board, move, color):
+      def __init__(self, face, name, board, move, color):
           self.board = board
           self.move = move
           self.color = color
           self.children = []
           self.visits = 0
           self.wins = 0
+          self.face = "🌸"
+          self.name = "spring"
 
       def is_leaf(self):
           return not self.children
