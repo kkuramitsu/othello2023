@@ -223,6 +223,7 @@ class OchibiAI(OthelloAI):
 
 
 class OnasuAI(OthelloAI):
+  
     def __init__(self):
         self.face = '🍆'
         self.name = 'はる'
@@ -267,7 +268,3 @@ class OnasuAI(OthelloAI):
     def evaluate_board(self, board):
         # 評価関数を適切に設定
         return count_board(board, self.face)
-
-
-
-

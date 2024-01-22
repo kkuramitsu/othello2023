@@ -6,17 +6,15 @@ import os
 import random
 
 BLACK = -1  # 黒
-WHITE = 1  # 白
-EMPTY = 0  # 空
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
     """
-    ボードを初期化
-    N: ボードの大きさ(N=8がデフォルト値)
+    ボードを初期化する
+    N: ボードの大きさ　(N=8がデフォルト値）
     """
-    # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -48,7 +46,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    オセロ盤を表示している
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -120,15 +118,57 @@ def display_move(board, row, col, player):
         display_board(board, sleep=0.1)
     display_board(board, sleep=0.6)
 
+def evaluate_move(board, row, col, player):
+    """
+    移動の評価を行う関数
+    """
+    N = len(board)
+
+    # 重みの定義
+    corner_weight = 5
+    edge_weight = 3
+    distance_penalty = 1  # 遠ざけるためのペナルティ
+
+    # 角に近づく距離を計算
+    distance_to_corners = min(row, col, N-1-row, N-1-col)
+
+    # 移動が角に近づく場合はペナルティを与える
+    if distance_to_corners == 1:
+        return -corner_weight
+    elif distance_to_corners == 2:
+        return -corner_weight / 2
+
+    # 移動が四辺に近づく場合はペナルティを与える
+    elif row == 1 or row == N-2 or col == 1 or col == N-2:
+        return -edge_weight * distance_penalty
+
+    return 0  # それ以外の場合は評価なし
+
 def find_eagar_move(board, player):
     valid_moves = get_valid_moves(board, player)
-    max_flips = 0
+
+    max_score = float('-inf')
     best_result = None
+
     for r, c in valid_moves:
+        score = evaluate_move(board, r, c, player)
+
+        # 重みを考慮したスコアを計算
         stones_to_flip = flip_stones(board, r, c, player)
-        if max_flips < len(stones_to_flip):
+        score += len(stones_to_flip)
+
+        if score > max_score:
             best_result = (r, c)
-            max_flips = len(stones_to_flip)
+            max_score = score
+
+    #max_flips = 0
+    #best_result = None
+
+    #for r, c in valid_moves:
+        #stones_to_flip = flip_stones(board, r, c, player)
+        #if max_flips < len(stones_to_flip):
+            #best_result = (r, c)
+            #max_flips = len(stones_to_flip)
     return best_result
 
 class OthelloAI(object):
@@ -145,9 +185,9 @@ class OthelloAI(object):
 
     def say(self, board: np.array, piece: int)->str:
         if count_board(board, piece) >= count_board(board, -piece):
-            return 'わーい！'
+            return 'やったー'
         else:
-            return '(T_T)'
+            return 'がーん'
 
 class OchibiAI(OthelloAI):
     def __init__(self, face, name):
@@ -157,9 +197,6 @@ class OchibiAI(OthelloAI):
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
-        """
-        [0]なので先頭の
-        """
 
 
 def board_play(player: OthelloAI, board, piece: int):
@@ -200,75 +237,18 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
+import random
 
+class RandomAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
-class hanAI(OthelloAI):
-    def __init__(self):
-        self.face = '🐶'
-        self.name = 'はん'
-
-    import random
-
-    # 評価関数
-    def evaluate(board):
-
-        score = 0
-        
-        # 石の数
-        my_stones = len(my_positions)
-        op_stones = len(op_positions)
-        score += (my_stones - op_stones) * 100
-        
-        # 角の位置ボーナス
-        if board[0,0] in my_positions:
-            score += 500
-            
-        # 連の石の数に応じたボーナス
-        for line in lines:
-            my_count = len([x for x in line if x in my_positions]) 
-            if my_count >= 3:
-                score += my_count * 30
-                
-        # 次の手で失う石の避ける
-        avoid_positions = get_dangerous_positions(board)
-        if next_move in avoid_positions:
-            score -= 80
-            
-        return score
-
-    # Move orderingのための評価関数
-    def ordering_evaluate(move):
-        # マスの重要度などからpriorityを算出
-        priority = 0
-        return priority
-
-    # Move orderingによるソート  
-    def order_moves(moves):
-        moves.sort(key=ordering_evaluate, reverse=True) 
-        return moves
-
-    # アルファベータ法
-    def alphabeta(node, depth, α, β): 
-        if node.is_terminal():
-            return evaluate(node)
-
-        if node.player == my_player:
-            v = -inf
-            for child in order_moves(node.moves):
-                v = max(v, alphabeta(child, depth-1, α, β)) 
-                α = max(α, v)
-                if α >= β: 
-                    break
-            return v
-        
-        else:
-            v = inf
-            for child in order_moves(node.moves):
-                v = min(v, alphabeta(child, depth-1, α, β))
-                β = min(β, v) 
-                if α >= β:
-                    break
-            return v
-      
-
-
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
