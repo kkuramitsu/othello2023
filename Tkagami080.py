@@ -211,7 +211,7 @@ def comment(player1: OthelloAI, player2: OthelloAI, board):
     except:
         pass
 
-def game(player1: OthelloAI, player2: OthelloAI,N=6):
+def game(player1: OthelloAI, player2: OthelloAI,N=8):
     board = init_board(N)
     display_board(board, black=f'{player1}', white=f'{player2}')
     while count_board(board, EMPTY) > 0:
