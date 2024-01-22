@@ -284,9 +284,11 @@ def flip_stones(board, row, col, player):
             stones_to_flip.extend(directional_stones_to_flip)
     return stones_to_flip
 
+  '''
 # プレイヤーの定義
 player1 = OchibiAI(BLACK, "Player1")
 player2 = twinsmomoAI(WHITE, "twinsmomoAI(OthelloAI)")
 
 # ゲームの実行
-#game(player1, player2, N=8)
+game(player1, player2, N=8)
+'''
