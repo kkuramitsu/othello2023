@@ -1,4 +1,3 @@
-
 from typing import List, Union
 import numpy as np
 from IPython.display import clear_output
@@ -6,18 +5,16 @@ import time
 import os
 import random
 
-BLACK = -1
-WHITE = 1
-EMPTY = 0
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
     """
     ボードを初期化する
-    N: ボードの大きさ(N=8がデフォルト値)
+    N: ボードの大きさ　(N=8がデフォルト値）
     """
-    # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,10 +29,16 @@ BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
 stone_codes = [
-    f'{BG_EMPTY}⚫️{BG_RESET}',
-    f'{BG_EMPTY}🟩{BG_RESET}',
-    f'{BG_EMPTY}⚪️{BG_RESET}',
-]
+     f'{BG_EMPTY}⚫️{BG_RESET}',
+     f'{BG_EMPTY}🟩{BG_RESET}',
+     f'{BG_EMPTY}⚪️{BG_RESET}',
+ ]
+
+#stone_codes = [
+#    f'黒',
+#    f'・',
+#    f'白',
+#]
 
 def stone(piece):
     return stone_codes[piece+1]
@@ -49,7 +52,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    Display the Othello board with emoji representations.
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -82,7 +85,6 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
-    "board が与えられたとき、row行col列目にplayerの色の石が置けるかどうか判定する
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -98,7 +100,6 @@ def is_valid_move(board, row, col, player):
     return False
 
 def get_valid_moves(board, player):
-  　"""
     return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
 def flip_stones(board, row, col, player):
@@ -161,6 +162,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -173,6 +175,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -200,9 +203,96 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
+import sys
 
+def display_board2(board, marks):
+    """
+    オセロ盤を表示する
+    """
+    global BLACK_NAME, WHITE_NAME
+    clear_output(wait=True)
+    for row, rows in enumerate(board):
+        for col, piece in enumerate(rows):
+            if (row, col) in marks:
+                print(marks[(row,col)], end='')
+            else:
+                print(stone(piece), end='')
+        if row == 1:
+            print(f'  {BLACK_NAME}')
+        elif row == 2:
+            print(f'   {stone(BLACK)}: {count_board(board, BLACK):2d}')
+        elif row == 3:
+            print(f'  {WHITE_NAME}')
+        elif row == 4:
+            print(f'   {stone(WHITE)}: {count_board(board, WHITE):2d}')
+        else:
+            print()  # New line after each row
 
+class You(OthelloAI):
 
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードの状態と色(color)が与えられたとき、
+        どこに置くか人間に尋ねる(row, col)
+        """
+        valid_moves = get_valid_moves(board, color)
+        MARK = '①②③④⑤⑥⑦⑧⑨'
+        marks={}
+        for i, rowcol in enumerate(valid_moves):
+            if i < len(MARK):
+                marks[rowcol] = MARK[i]
+                marks[i+1] = rowcol
+        display_board2(board, marks)
+        n = int(input('どこにおきますか？ '))
+        return marks[n]
+import random
 
+class RandomAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
+
+class GangarAI(OthelloAI):
+    def __init__(self, face, name):
+        super().__init__(face, name)
+
+    def heuristic_evaluation(self, board, color):
+        # ゲームの進行状況に基づいて評価を変える
+        empty_count = count_board(board, EMPTY)
+        if empty_count > (len(board) ** 2) // 2:
+            # 前半の戦略: 盤面の位置を確保
+            score = self.evaluate_early_game(board, color)
+        else:
+            # 後半の戦略: 安定した石を獲得
+            score = self.evaluate_late_game(board, color)
+        return score
+
+    def evaluate_early_game(self, board, color):
+        # 前半の評価ロジック
+        score = 0
+        # ...
+        return score
+
+    def evaluate_late_game(self, board, color):
+        # 後半の評価ロジック
+        score = 0
+        # ...
+        return score
+
+    # ミニマックス関数など他のメソッドは以前のまま
+
+def count_board(board, piece):
+    # 盤面上の指定された石の数をカウント
+    return np.sum(board == piece)
+
+# 以前のperform_move、game_over関数などの実装
 
