@@ -127,71 +127,7 @@ def find_eagar_move(board, player):
             max_flips = len(stones_to_flip)
     return best_result
 
-class OthelloAI(object):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
 
-    def __repr__(self):
-        return f"{self.face}{self.name}"
-
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-
-    def say(self, board: np.array, piece: int)->str:
-        if count_board(board, piece) >= count_board(board, -piece):
-            return 'やったー'
-        else:
-            return 'がーん'
-
-class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
-
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-
-
-def board_play(player: OthelloAI, board, piece: int):
-    display_board(board, sleep=0)
-    if len(get_valid_moves(board, piece)) == 0:
-        print(f"{player}は、置けるところがありません。スキップします。")
-        return True
-    try:
-        start_time = time.time()
-        r, c = player.move(board.copy(), piece)
-        end_time = time.time()
-    except:
-        print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
-        return False
-    if not is_valid_move(board, r, c, piece):
-        print(f"{player}が返した({r},{c})には、置けません。反則負け。")
-        return False
-    display_move(board, r, c, piece)
-    return True
-
-def comment(player1: OthelloAI, player2: OthelloAI, board):
-    try:
-        print(f"{player1}: {player1.say(board, BLACK)}")
-    except:
-        pass
-    try:
-        print(f"{player2}: {player2.say(board, WHITE)}")
-    except:
-        pass
-
-def game(player1: OthelloAI, player2: OthelloAI,N=6):
-    board = init_board(N)
-    display_board(board, black=f'{player1}', white=f'{player2}')
-    while count_board(board, EMPTY) > 0:
-        if not board_play(player1, board, BLACK):
-            break
-        if not board_play(player2, board, WHITE):
-            break
-    comment(player1, player2, board)
 
 
 import sys
@@ -304,4 +240,3 @@ class iohana(OthelloAI):
         ここでは簡単にコマの数を数えていますが、より高度な評価関数を実装することができます。
         """
         return count_board(board, color)
-
