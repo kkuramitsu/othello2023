@@ -289,4 +289,4 @@ player1 = OchibiAI(BLACK, "Player1")
 player2 = twinsmomoAI(WHITE, "twinsmomoAI(OthelloAI)")
 
 # ゲームの実行
-game(player1, player2, N=8)
+#game(player1, player2, N=8)
