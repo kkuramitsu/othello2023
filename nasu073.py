@@ -223,10 +223,11 @@ class OchibiAI(OthelloAI):
 
 
 class OnasuAI(OthelloAI):
-    def __init__(self, face, name, depth=6):
+  
+    def __init__(self):
         self.face = '🍆'
         self.name = 'はる'
-        self.depth = depth
+        self.depth = 6
 
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
         _, move = self.minimax(board, piece, self.depth, True)
@@ -267,6 +268,3 @@ class OnasuAI(OthelloAI):
     def evaluate_board(self, board):
         # 評価関数を適切に設定
         return count_board(board, self.face)
-
-
-
