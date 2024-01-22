@@ -5,14 +5,16 @@ import time
 import os
 import random
 
-BLACK = -1
-WHITE = 1
-EMPTY = 0
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
-    # Initialize the board with an 8x8 numpy array
+    """
+    ボードを初期化する
+    N: ボードの大きさ　(N=8がデフォルト値）
+    """
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,6 +34,12 @@ stone_codes = [
     f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
 
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
+
 def stone(piece):
     return stone_codes[piece+1]
 
@@ -44,7 +52,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    Display the Othello board with emoji representations.
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -154,6 +162,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -166,6 +175,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -192,6 +202,66 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
         if not board_play(player2, board, WHITE):
             break
     comment(player1, player2, board)
+
+class SukoyakaAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
+
+### 自分の作ったAIをここに貼る
+class SukoyakaAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def move(self, board, color: int) -> tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row, col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+
+        # 各手の評価値を計算し、最も評価値の高い手を選択する
+        best_move = None
+        max_flips = -1
+
+        for move in valid_moves:
+            r, c = move
+            # 評価値を計算する際にflip_stonesを実際に実行しないように改善
+            flip_count = self.evaluate_move(board, r, c, color)
+
+            if flip_count > max_flips:
+                max_flips = flip_count
+                best_move = move
+
+        return best_move
+
+    def evaluate_move(self, board, row, col, color):
+        """
+        指定された手の評価値を返す（実際に裏返すことなく評価）
+        """
+        flip_count = 0
+        for dr, dc in directions:
+            r, c = row + dr, col + dc
+            flip_temp = 0
+
+            while 0 <= r < len(board) and 0 <= c < len(board) and board[r, c] == -color:
+                flip_temp += 1
+                r, c = r + dr, c + dc
+
+            if 0 <= r < len(board) and 0 <= c < len(board) and board[r, c] == color:
+                flip_count += flip_temp
+
+        return flip_count
+####
 
 
 
