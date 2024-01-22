@@ -204,6 +204,7 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
+
 class ShrimpAI(OthelloAI):
     def __init__(self):
         self.face = '🦐'
