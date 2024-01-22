@@ -202,7 +202,7 @@ import random
 class springAI(OthelloAI):
 
     class Node:
-      def __init__(self, face, name, board, move, color):
+      def __init__(self, board, move, color):
           self.board = board
           self.move = move
           self.color = color
