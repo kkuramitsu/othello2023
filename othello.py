@@ -145,8 +145,10 @@ class OthelloAI(object):
         else:
             return 'がーん'
 
+import traceback
+
 class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
+    def __init__(self, face='🍑', name='ももぽん'):
         self.face = face
         self.name = name
 
@@ -166,6 +168,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -191,6 +194,45 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
         if not board_play(player2, board, WHITE):
             break
+    comment(player1, player2, board)
+
+def quick_move(board, row, col, player):
+    stones_to_flip = flip_stones(board, row, col, player)
+    board[row, col] = player
+    #display_board(board, sleep=0.3)
+    for r, c in stones_to_flip:
+        board[r, c] = player
+        #display_board(board, sleep=0.1)
+    #display_board(board, sleep=0.6)
+
+def quick_play(player: OthelloAI, board, piece: int):
+    #display_board(board, sleep=0)
+    if len(get_valid_moves(board, piece)) == 0:
+        print(f"{player}は、置けるところがありません。スキップします。")
+        return True
+    try:
+        start_time = time.time()
+        r, c = player.move(board.copy(), piece)
+        end_time = time.time()
+    except:
+        print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        return False
+    if not is_valid_move(board, r, c, piece):
+        print(f"{player}が返した({r},{c})には、置けません。反則負け。")
+        return False
+    quick_move(board, r, c, piece)
+    return True
+
+
+def quick_game(player1: OthelloAI, player2: OthelloAI, N=8):
+    board = init_board(N)
+    # display_board(board, black=f'{player1}', white=f'{player2}')
+    for _ in range(N*N-4):
+        if not quick_play(player1, board, BLACK):
+            break
+        if not quick_play(player2, board, WHITE):
+            break
+    display_board(board, black=f'{player1}', white=f'{player2}')
     comment(player1, player2, board)
 
 
