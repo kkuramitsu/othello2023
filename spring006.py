@@ -290,12 +290,14 @@ class springAI(OthelloAI):
           return max(self.children, key=lambda child: child.wins / child.visits)
 
 
-    def __init__(self, face, name, iterations=2000):
-        super().__init__(face, name)
+    def __init__(self, iterations=2000):
+        self.face = "🌸"
+        self.name = "spring"
+        super().__init__(self.face, self.name)
         self.iterations = iterations
 
     def monte_carlo_tree_search(self, board, color):
-        root_node = Node(board.copy(), None, color)
+        root_node = self.board.copy(), None, self.color
         for _ in range(self.iterations):
             node = root_node
             # 選択フェーズ
