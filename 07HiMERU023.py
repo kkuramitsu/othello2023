@@ -210,12 +210,25 @@ class HiMERUAI(OthelloAI):
         self.face = '☕'
         self.name = 'HiMERU'
 
-    def move(self, board, color: int)->tuple[int, int]:
+    def move(self, board, color: int) -> tuple[int, int]:
         """
-        ボードが与えられたとき、どこに置くか(row,col)を返す
+        ボードが与えられたとき、どこに置くか(row, col)を返す
         """
         valid_moves = get_valid_moves(board, color)
-        # ランダムに選ぶ
+
+        # 角に石を置ける場合、それを最優先
+        corner_moves = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        corner_valid_moves = list(set(valid_moves) & set(corner_moves))
+        if corner_valid_moves:
+            return random.choice(corner_valid_moves)
+
+        # 特定の位置に石を置ける場合、それを優先
+        priority_moves = [(0, 2), (0, 5), (2, 0), (5, 0), (7, 2), (7, 5), (5, 7)]
+        priority_valid_moves = list(set(valid_moves) & set(priority_moves))
+        if priority_valid_moves:
+            return random.choice(priority_valid_moves)
+
+        # 上記の条件が満たされない場合はランダムに選ぶ
         selected_move = random.choice(valid_moves)
         return selected_move
 
