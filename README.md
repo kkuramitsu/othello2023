@@ -4,4 +4,4 @@
 
 ### 優勝🌸`from othello2023.pamo009 import PamoAI`
 
-#### 準優勝🎖`from othello2023.pamo009 import TaeAI`
+#### 準優勝🎖`from othello2023.Tae064 import TaeAI`
