@@ -204,11 +204,14 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
-
-
 import random
 
 class PiyopiyoAI(OthelloAI):
+
+    def __init__(self):
+        self.face = '🐤' # 自分の好きな絵文字
+        self.name = 'ぴよ' # 自分の好きな名前
+
     yosumi = [(0, 0), (0, 7), (7, 0), (7, 7)]
     abunai = [(0, 1), (1, 1), (1, 0), (0, 6), (1, 6), (1, 7), (6, 0), (6, 1), (7, 1), (7, 6), (6, 6), (6, 7)]
     abunai00 = [(0, 1), (1, 1), (1, 0)]
