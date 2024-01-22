@@ -5,20 +5,14 @@ import time
 import os
 import random
 
-
 BLACK = -1
 WHITE = 1
 EMPTY = 0
 
-def init_board(N:int=8): 
-    """
-    ボードを初期化する
-    N: ボードの大きさ　（N=8がデフォルト値）
-    """
+def init_board(N:int=8):
     # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
     # Set up the initial four stones
-
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,12 +26,10 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
-
 stone_codes = [
     f'{BG_EMPTY}⚫️{BG_RESET}',
-    f'{BG_EMPTY}・{BG_RESET}',
+    f'{BG_EMPTY}🟩{BG_RESET}',
     f'{BG_EMPTY}⚪️{BG_RESET}',
-
 ]
 
 def stone(piece):
@@ -52,9 +44,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-
-    オセロボードを表示する
-
+    Display the Othello board with emoji representations.
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -87,11 +77,6 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
-
-    """
-    boardが与えられたとき、row行col列目にplayerの色の石が置けるかどうか判定する
-    """
-
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -107,9 +92,6 @@ def is_valid_move(board, row, col, player):
     return False
 
 def get_valid_moves(board, player):
-    """
-    board上にplayerが置ける位置を示す
-    """
     return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
 def flip_stones(board, row, col, player):
@@ -153,8 +135,12 @@ class OthelloAI(object):
     def __repr__(self):
         return f"{self.face}{self.name}"
 
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
+    def move(self, board: np.array, color: int)->tuple[int, int]:
+        """
+        ボードの状態と色(color)が与えられたとき、
+        どこに置くか返す(row, col)
+        """
+        valid_moves = get_valid_moves(board, color)
         return valid_moves[0]
 
     def say(self, board: np.array, piece: int)->str:
@@ -184,7 +170,6 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
-        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -212,20 +197,142 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-
 import random
 
-class HiMERUAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = '☕'
-        self.name = 'HiMERU'
+class springAI(OthelloAI):
+
+    class Node:
+      def __init__(self, board, move, color):
+          self.board = board
+          self.move = move
+          self.color = color
+          self.children = []
+          self.visits = 0
+          self.wins = 0
+          self.face = "🌸"
+          self.name = "spring"
+
+      def is_leaf(self):
+          return not self.children
+
+      def is_fully_expanded(self):
+          return len(self.children) == len(get_valid_moves(self.board, self.color))
+
+      def is_terminal(self):
+          return len(get_valid_moves(self.board, self.color)) == 0
+
+      def select_child(self):
+          # ノードの選択ロジックを実装する
+          return random.choice(self.children)
+
+      def expand(self):
+          # ノードの展開ロジックを実装する
+          valid_moves = get_valid_moves(self.board, self.color)
+          move = random.choice(valid_moves)
+          new_board = self.board.copy()
+          new_board[move[0], move[1]] = self.color
+          new_node = Node(new_board, move, -self.color)
+          self.children.append(new_node)
+          return new_node
+
+      def simulate(self):
+          # シミュレーションロジックを実装する
+            simulated_board = self.board.copy()
+            simulated_color = self.color
+
+            while len(get_valid_moves(simulated_board, simulated_color)) > 0:
+                valid_moves = get_valid_moves(simulated_board, simulated_color)
+
+                # 評価関数を使用して次の手を選択
+                move = self.select_simulation_move(valid_moves, simulated_board, simulated_color)
+
+                simulated_board[move[0], move[1]] = simulated_color
+                simulated_color = -simulated_color  # プレイヤーを交代する
+            return count_board(simulated_board, self.color)
+
+      def select_simulation_move(self, valid_moves, board, color):
+          # シミュレーションで使うランダム性を残しつつ、より良い手を選択するロジックを追加
+          # 例: ランダムに手を選ぶ代わりに、各手を評価してより有利な手を選択
+          best_move = valid_moves[0]
+          best_score = float('-inf')
+
+          for move in valid_moves:
+              temp_board = board.copy()
+              temp_board[move[0], move[1]] = color
+              score = self.evaluate_board(temp_board, color)
+
+              if score > best_score or (score == best_score and random.random() < 0.8):
+                  best_score = score
+                  best_move = move
+
+          return best_move
+
+      def evaluate_board(self, board, color):
+          # ボードの状態を評価するロジックを追加
+          evaluation = 0
+          for r in range(len(board)):
+             for c in range(len(board[0])):
+                  if board[r, c] == color:
+                      evaluation += 1
+                  elif board[r, c] == -color:
+                      evaluation -= 1
+                  # 例: 角の占有を高く評価
+                  if (r, c) in [(0, 0), (0, len(board) - 1), (len(board) - 1, 0), (len(board) - 1, len(board[0]) - 1)]:
+                      evaluation += 5 * color
+             return evaluation
+      def backpropagate(self, result):
+          # バックプロパゲーションロジックを実装する
+          self.visits += 1
+          self.wins += result
+
+      def best_child(self):
+          # 最良の子ノードを返すロジックを実装する
+          return max(self.children, key=lambda child: child.wins / child.visits)
 
 
-    def move(self, board, color: int)->tuple[int, int]:
-        """
-        ボードが与えられたとき、どこに置くか(row,col)を返す
-        """
+    def __init__(self, iterations=2000):
+        self.face = "🌸"
+        self.name = "spring"
+        super().__init__(self.face, self.name)
+        self.iterations = iterations
+
+    def monte_carlo_tree_search(self, board, color):
+        root_node = self.board.copy(), None, self.color
+        for _ in range(self.iterations):
+            node = root_node
+            # 選択フェーズ
+            while not node.is_leaf() and node.is_fully_expanded():
+                node = node.select_child()
+
+            # 展開フェーズ
+            if not node.is_terminal():
+                node = node.expand()
+
+            # シミュレーションフェーズ
+            result = node.simulate()
+
+            # バックプロパゲーションフェーズ
+            node.backpropagate(result)
+
+        best_child = root_node.best_child()
+        return best_child.move
+
+
+
+    def move(self, board, color: int) -> tuple[int, int]:
+
         valid_moves = get_valid_moves(board, color)
-        # ランダムに選ぶ
-        selected_move = random.choice(valid_moves)
+        if not valid_moves:
+            return random.choice(all_positions(board))
+        return random.choice(valid_moves)
+
+        # MCTSを使用して新しい手を取得
+        mcts_move = self.monte_carlo_tree_search(board, color)
+
+        # Alpha-Beta法を使用して新しい手を取得
+        alpha_beta_move = super().move(board, color)
+
+        # 例えば、MCTSとAlpha-Beta法の結果を比較し、どちらかを選択するロジックを追加
+        selected_move = mcts_move if random.random() < 0.5 else alpha_beta_move
+
         return selected_move

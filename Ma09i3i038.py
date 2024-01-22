@@ -153,12 +153,12 @@ class OthelloAI(object):
             return 'がーん'
 
 class OchibiAI(OthelloAI):
-    def __init__(self,face, name,depth=6):
-      self.face = '🍑'
-      self.name = 'もも'
-   # def __init__(self, face, name):
-      #  self.face = face
-       # self.name = name
+    # def __init__(self):
+    #    self.face = '🍑'
+    #    self.name = 'もも'
+    def __init__(self, face, name):
+       self.face = face
+       self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         valid_moves = get_valid_moves(board, piece)
@@ -204,16 +204,14 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-
-
 # 危険エリア回避
 class NamachaAI(OthelloAI):
-    def __init__(self):
-       self.face = '☕'
-       self.name = 'サブなまちゃまー'
-    #def __init__(self, face, name):
-     #   self.face = face
-      #  self.name = name
+    # def __init__(self):
+    #    self.face = '☕'
+    #    self.name = 'サブなまちゃまー'
+    def __init__(self, face, name):
+       self.face = face
+       self.name = name
 
     def move(self, board: np.array, piece: int)->tuple[int, int]:
         best_moves = self.get_best_moves(board, piece)
@@ -312,12 +310,12 @@ def minimax(node, depth, maximizingPlayer, alpha=float('-inf'), beta=float('inf'
         return minEval
 
 class NamachaAI2(OthelloAI):
-    def __init__(self,face, name, depth=6):
-       self.face = "🍵"
-       self.name = 'なまちゃまー'
-   # def __init__(self, face, name, depth=6):
-    #    super().__init__(face, name)
-     #   self.depth = depth
+    # def __init__(self):
+    #    self.face = '🍵'
+    #    self.name = 'なまちゃまー'
+    def __init__(self, face, name, depth=6):
+       super().__init__(face, name)
+       self.depth = depth
 
     def move(self, board, piece):
         # 現在の盤面で有効な手のリストを取得
@@ -326,3 +324,27 @@ class NamachaAI2(OthelloAI):
         # 有効な手がない場合はNoneを返す
         if not valid_moves:
             return None
+
+        # 各有効な手に対してミニマックスアルゴリズムを適用し、最善の手を決定
+        best_move = None
+        best_score = float('-inf') if piece == BLACK else float('inf')
+
+        for move in valid_moves:
+            new_board = board.copy()
+            # 有効な手を適用して新しい盤面を生成
+            display_move_no_display(new_board, move[0], move[1], piece)
+            # 新しい盤面に基づいてゲーム木のノードを生成
+            node = GameTreeNode(new_board, -piece)
+            node.create_children(self.depth - 1)
+            # ミニマックスアルゴリズムでスコアを計算
+            score = minimax(node, self.depth - 1, piece != BLACK)
+            # 最適な手を更新
+            if (piece == BLACK and score > best_score) or (piece != BLACK and score < best_score):
+                best_move = move
+                best_score = score
+
+        r, c = best_move
+        if board[r, c] != 0:
+            print('invalid!')
+
+        return best_move

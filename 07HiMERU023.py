@@ -1,8 +1,9 @@
-import numpy as np
 from typing import List, Union
-import time  # 追加
+import numpy as np
 from IPython.display import clear_output
-
+import time
+import os
+import random
 
 BLACK = -1  # 黒
 WHITE = 1   # 白
@@ -33,6 +34,12 @@ stone_codes = [
     f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
 
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
+
 def stone(piece):
     return stone_codes[piece+1]
 
@@ -47,7 +54,6 @@ def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
     オセロ盤を表示する
     """
-    
     global BLACK_NAME, WHITE_NAME
     if clear:
         clear_output(wait=True)
@@ -197,98 +203,34 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-class twinsmomoAI(OthelloAI):
-    def __init__(self, face, name, depth=3):
-        self.face = '🍑'
-        self.name = "momoko"
-        self.depth = depth
-        self.weights = {'stone_count': 1.0, 'mobility': 1.0, 'corner_bonus': 1.0, 'flipping_potential': 1.0}
-    
-    def move(self, board: np.array, piece: int) -> tuple[int, int]:
-        _, move = self.minimax(board, piece, self.depth)
-        return move
+import random
 
-    def minimax(self, board, piece, depth):
-        if depth == 0 or len(get_valid_moves(board, piece)) == 0:
-            return self.evaluate_board(board, piece), None
+class HiMERUAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = '☕'
+        self.name = 'HiMERU'
 
-        valid_moves = get_valid_moves(board, piece)
-        if piece == BLACK:  # Maximize for Black
-            best_score = float('-inf')
-            best_move = None
-            for move in valid_moves:
-                new_board = board.copy()
-                new_board[move[0], move[1]] = piece
-                score, _ = self.minimax(new_board, -piece, depth - 1)
-                if score > best_score:
-                    best_score = score
-                    best_move = move
-            return best_score, best_move
-        else:  # Minimize for White
-            best_score = float('inf')
-            best_move = None
-            for move in valid_moves:
-                new_board = board.copy()
-                new_board[move[0], move[1]] = piece
-                score, _ = self.minimax(new_board, -piece, depth - 1)
-                if score < best_score:
-                    best_score = score
-                    best_move = move
-            return best_score, best_move
+    def move(self, board, color: int) -> tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row, col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
 
-    def evaluate_board(self, board, piece):
-        stone_count = count_board(board, piece)
-        mobility = len(get_valid_moves(board, piece))
-        corner_bonus = self.get_corner_bonus(board, piece)
-        flipping_potential = self.get_flipping_potential(board, piece)
-        
-        # Apply weights to each component
-        weighted_sum = (
-            self.weights['stone_count'] * stone_count +
-            self.weights['mobility'] * mobility +
-            self.weights['corner_bonus'] * corner_bonus +
-            self.weights['flipping_potential'] * flipping_potential
-        )
+        # 角に石を置ける場合、それを最優先
+        corner_moves = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        corner_valid_moves = list(set(valid_moves) & set(corner_moves))
+        if corner_valid_moves:
+            return random.choice(corner_valid_moves)
 
-        return weighted_sum
+        # 特定の位置に石を置ける場合、それを優先
+        priority_moves = [(0, 2), (0, 5), (2, 0), (5, 0), (7, 2), (7, 5), (5, 7)]
+        priority_valid_moves = list(set(valid_moves) & set(priority_moves))
+        if priority_valid_moves:
+            return random.choice(priority_valid_moves)
 
-    def get_corner_bonus(self, board, piece):
-        corner_bonus = 0
-        N = len(board)
-        corners = [(0, 0), (0, N-1), (N-1, 0), (N-1, N-1)]
-        for corner in corners:
-            if board[corner[0], corner[1]] == piece:
-                corner_bonus += 1
-        return corner_bonus
-
-    def get_flipping_potential(self, board, piece):
-        potential = 0
-        for move in get_valid_moves(board, piece):
-            potential += len(flip_stones(board, move[0], move[1], piece))
-        return potential
+        # 上記の条件が満たされない場合はランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
 
 
-def get_valid_moves(board, player):
-    return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
-def flip_stones(board, row, col, player):
-    N = len(board)
-    stones_to_flip = []
-    for dr, dc in directions:
-        directional_stones_to_flip = []
-        r, c = row + dr, col + dc
-        while 0 <= r < N and 0 <= c < N and board[r, c] == -player:
-            directional_stones_to_flip.append((r, c))
-            r, c = r + dr, c + dc
-        if 0 <= r < N and 0 <= c < N and board[r, c] == player:
-            stones_to_flip.extend(directional_stones_to_flip)
-    return stones_to_flip
-
-  '''
-# プレイヤーの定義
-player1 = OchibiAI(BLACK, "Player1")
-player2 = twinsmomoAI(WHITE, "twinsmomoAI(OthelloAI)")
-
-# ゲームの実行
-game(player1, player2, N=8)
-'''
