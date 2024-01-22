@@ -145,6 +145,8 @@ class OthelloAI(object):
         else:
             return 'がーん'
 
+import traceback
+
 class OchibiAI(OthelloAI):
     def __init__(self, face='🍑', name='ももぽん'):
         self.face = face
@@ -166,6 +168,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
