@@ -5,14 +5,16 @@ import time
 import os
 import random
 
-BLACK = -1
-WHITE = 1
-EMPTY = 0
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
-    # Initialize the board with an 8x8 numpy array
+    """
+    ボードを初期化する
+    N: ボードの大きさ　(N=8がデフォルト値）
+    """
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,6 +34,12 @@ stone_codes = [
     f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
 
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
+
 def stone(piece):
     return stone_codes[piece+1]
 
@@ -44,7 +52,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    Display the Othello board with emoji representations.
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -154,6 +162,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -166,6 +175,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -193,73 +203,107 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-class PamoAI(OthelloAI):
-    def __init__(self):
-        self.face = '🐁'
-        self.name = 'パモ'
 
-        self.avoid_moves = [
-            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7), (7, 1), (7, 6),
-            (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
-            (2, 1), (2, 6), (3, 1), (3, 6), (4, 1), (4, 6),
-            (5, 1), (5, 6), (6, 1), (6, 2), (6, 3), (6, 4),
-            (6, 5), (6, 6)
-        ]
 
-        self.avoid_moves_2 = [
-            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7),
-            (7, 1), (7, 6), (1, 1), (1, 6), (6, 1), (6, 6)
-        ]
 
-        self.avoid_moves_3 = [
-            (1, 1), (1, 6), (6, 1), (6, 6)
-        ]
 
-    def find_corner_move(self, valid_moves):
-        corner_moves = [(0, 0), (0, 7), (7, 0), (7, 7)]
-        for move in corner_moves:
-            if move in valid_moves:
-                return move
-        return None
 
-    def find_edge_move(self, valid_moves):
-        edge_moves = [
-            (0, 2), (0, 3), (0, 4), (0, 5),
-            (2, 0), (3, 0), (4, 0), (5, 0),
-            (7, 2), (7, 3), (7, 4), (7, 5),
-            (2, 7), (3, 7), (4, 7), (5, 7),
-        ]
-        for move in edge_moves:
-            if move in valid_moves:
-                return move
-        return None
 
+class ImprovedOthelloAI(OthelloAI):
+    def __init__(self, face, name, depth=3):
+        super().__init__(face, name)
+        self.depth = depth
+        self.weights = {'stone_count': 1.0, 'mobility': 1.0, 'corner_bonus': 1.0, 'flipping_potential': 1.0}
+    
     def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        _, move = self.minimax(board, piece, self.depth)
+        return move
+
+    def minimax(self, board, piece, depth):
+        if depth == 0 or len(get_valid_moves(board, piece)) == 0:
+            return self.evaluate_board(board, piece), None
+
         valid_moves = get_valid_moves(board, piece)
+        if piece == BLACK:  # Maximize for Black
+            best_score = float('-inf')
+            best_move = None
+            for move in valid_moves:
+                new_board = board.copy()
+                new_board[move[0], move[1]] = piece
+                score, _ = self.minimax(new_board, -piece, depth - 1)
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+            return best_score, best_move
+        else:  # Minimize for White
+            best_score = float('inf')
+            best_move = None
+            for move in valid_moves:
+                new_board = board.copy()
+                new_board[move[0], move[1]] = piece
+                score, _ = self.minimax(new_board, -piece, depth - 1)
+                if score < best_score:
+                    best_score = score
+                    best_move = move
+            return best_score, best_move
 
-        # Check for corner moves
-        corner_move = self.find_corner_move(valid_moves)
-        if corner_move:
-            return corner_move
-
-        # Check for edge moves
-        edge_move = self.find_edge_move(valid_moves)
-        if edge_move:
-            return edge_move
-
-        # Avoid specified moves
-        for move in valid_moves:
-            if move not in self.avoid_moves:
-                return move
-
-        # Avoid specified moves
-        for move in valid_moves:
-            if move not in self.avoid_moves_2:
-                return move
+    def evaluate_board(self, board, piece):
+        stone_count = count_board(board, piece)
+        mobility = len(get_valid_moves(board, piece))
+        corner_bonus = self.get_corner_bonus(board, piece)
+        flipping_potential = self.get_flipping_potential(board, piece)
         
-        # Avoid specified moves
-        for move in valid_moves:
-            if move not in self.avoid_moves_3:
-                return move
+        # Apply weights to each component
+        weighted_sum = (
+            self.weights['stone_count'] * stone_count +
+            self.weights['mobility'] * mobility +
+            self.weights['corner_bonus'] * corner_bonus +
+            self.weights['flipping_potential'] * flipping_potential
+        )
 
-        return valid_moves[len(valid_moves)//2]
+        return weighted_sum
+
+    def get_corner_bonus(self, board, piece):
+        corner_bonus = 0
+        N = len(board)
+        corners = [(0, 0), (0, N-1), (N-1, 0), (N-1, N-1)]
+        for corner in corners:
+            if board[corner[0], corner[1]] == piece:
+                corner_bonus += 1
+        return corner_bonus
+
+    def get_flipping_potential(self, board, piece):
+        potential = 0
+        for move in get_valid_moves(board, piece):
+            potential += len(flip_stones(board, move[0], move[1], piece))
+        return potential
+
+# 5つのコツを組み込んだAI
+class AdvancedOthelloAI(ImprovedOthelloAI):
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        if count_board(board, piece) + count_board(board, -piece) < 20:
+            # コツ①: 確定石を取られない
+            _, corner_move = self.minimax(board, piece, self.depth)
+            if corner_move is not None:
+                return corner_move
+
+        # コツ④: 相手に囲ませる
+        _, move = self.minimax(board, piece, self.depth)
+        return move
+
+    def evaluate_board(self, board, piece):
+        # 評価関数をカスタマイズ
+        stone_count = count_board(board, piece)
+        opponent_piece = -piece
+        opponent_stone_count = count_board(board, opponent_piece)
+        
+        # コツ②: 序盤は少なく取る
+        if stone_count + opponent_stone_count < 16:
+            return stone_count - opponent_stone_count
+
+        # コツ③: 中盤は開放度理論
+        # コツ⑤: 終盤は偶数理論
+        return super().evaluate_board(board, piece)
+
+# 5つのコツを組み込んだAIのインスタンスを生成
+advanced_ai = AdvancedOthelloAI(BLACK, "AdvancedAI")

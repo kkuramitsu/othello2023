@@ -5,14 +5,16 @@ import time
 import os
 import random
 
-BLACK = -1
-WHITE = 1
-EMPTY = 0
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
 def init_board(N:int=8):
-    # Initialize the board with an 8x8 numpy array
+    """
+    ボードを初期化する
+    N: ボードの大きさ　(N=8がデフォルト値）
+    """
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,6 +34,12 @@ stone_codes = [
     f'{BG_EMPTY}⚪️{BG_RESET}',
 ]
 
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
+
 def stone(piece):
     return stone_codes[piece+1]
 
@@ -44,7 +52,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-    Display the Othello board with emoji representations.
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -154,6 +162,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -166,6 +175,7 @@ def board_play(player: OthelloAI, board, piece: int):
         end_time = time.time()
     except:
         print(f"{player.face}{player.name}は、エラーを発生させました。反則まけ")
+        traceback.print_exc()
         return False
     if not is_valid_move(board, r, c, piece):
         print(f"{player}が返した({r},{c})には、置けません。反則負け。")
@@ -193,73 +203,47 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-class PamoAI(OthelloAI):
-    def __init__(self):
-        self.face = '🐁'
-        self.name = 'パモ'
+class sukoyakaAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
-        self.avoid_moves = [
-            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7), (7, 1), (7, 6),
-            (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
-            (2, 1), (2, 6), (3, 1), (3, 6), (4, 1), (4, 6),
-            (5, 1), (5, 6), (6, 1), (6, 2), (6, 3), (6, 4),
-            (6, 5), (6, 6)
-        ]
+    def move(self, board, color: int)->tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row,col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
+        # ランダムに選ぶ
+        selected_move = random.choice(valid_moves)
+        return selected_move
 
-        self.avoid_moves_2 = [
-            (0, 1), (0, 6), (1, 0), (1, 7), (6, 0), (6, 7),
-            (7, 1), (7, 6), (1, 1), (1, 6), (6, 1), (6, 6)
-        ]
+### 自分の作ったAIをここに貼る
+class SukoyakaAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
 
-        self.avoid_moves_3 = [
-            (1, 1), (1, 6), (6, 1), (6, 6)
-        ]
+    def move(self, board, color: int) -> tuple[int, int]:
+        """
+        ボードが与えられたとき、どこに置くか(row, col)を返す
+        """
+        valid_moves = get_valid_moves(board, color)
 
-    def find_corner_move(self, valid_moves):
-        corner_moves = [(0, 0), (0, 7), (7, 0), (7, 7)]
-        for move in corner_moves:
-            if move in valid_moves:
-                return move
-        return None
+        # 各手の評価値を計算し、最も評価値の高い手を選択する
+        best_move = None
+        max_flips = -1
 
-    def find_edge_move(self, valid_moves):
-        edge_moves = [
-            (0, 2), (0, 3), (0, 4), (0, 5),
-            (2, 0), (3, 0), (4, 0), (5, 0),
-            (7, 2), (7, 3), (7, 4), (7, 5),
-            (2, 7), (3, 7), (4, 7), (5, 7),
-        ]
-        for move in edge_moves:
-            if move in valid_moves:
-                return move
-        return None
-
-    def move(self, board: np.array, piece: int) -> tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-
-        # Check for corner moves
-        corner_move = self.find_corner_move(valid_moves)
-        if corner_move:
-            return corner_move
-
-        # Check for edge moves
-        edge_move = self.find_edge_move(valid_moves)
-        if edge_move:
-            return edge_move
-
-        # Avoid specified moves
         for move in valid_moves:
-            if move not in self.avoid_moves:
-                return move
+            r, c = move
+            stones_to_flip = flip_stones(board, r, c, color)
+            flip_count = len(stones_to_flip)
 
-        # Avoid specified moves
-        for move in valid_moves:
-            if move not in self.avoid_moves_2:
-                return move
-        
-        # Avoid specified moves
-        for move in valid_moves:
-            if move not in self.avoid_moves_3:
-                return move
+            if flip_count > max_flips:
+                max_flips = flip_count
+                best_move = move
 
-        return valid_moves[len(valid_moves)//2]
+        return best_move
+####
+
+
+
