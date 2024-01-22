@@ -222,4 +222,89 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
     comment(player1, player2, board)
 
 
-print("Good morning World!")
+class SaitsuyoAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = '🐶'
+        self.name = 'ぶん'
+
+    def say(self, board: np.array, piece: int)->str:
+        if count_board(board, piece) >= count_board(board, -piece):
+            return 'ぶんは 嬉しそうに 尻尾を 振っている'
+        else:
+            return 'ぶんは そっぽを 向いた'
+
+    def make_move(self, board: np.array, row: int, col: int, player: int):
+        valid_moves = get_valid_moves(board, player)
+        if valid_moves:
+            move = random.choice(valid_moves)
+            row, col = move
+            board[row, col] = player
+
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        if not valid_moves:
+            return self.random_move(board, piece)
+        return self.minimax(board, 4, True, float('-inf'), float('inf'), piece)[1]
+
+    def random_move(self, board, piece):
+        valid_moves = get_valid_moves(board, piece)
+        return random.choice(valid_moves)
+
+    def minimax(self, board, depth, maximizing_player, alpha, beta, player):
+        if depth == 0 or not get_valid_moves(board, player):
+            return self.evaluate_board(board, player), None
+
+        valid_moves = get_valid_moves(board, player)
+
+        if maximizing_player:
+            max_eval = float('-inf')
+            best_move = None
+            for move in valid_moves:
+                child_board = board.copy()
+                self.make_move(child_board, move[0], move[1], player)
+                eval, _ = self.minimax(child_board, depth - 1, False, alpha, beta, player)
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+            return max_eval, best_move
+        else:
+            min_eval = float('inf')
+            best_move = None
+            for move in valid_moves:
+                child_board = board.copy()
+                self.make_move(child_board, move[0], move[1], player)
+                eval, _ = self.minimax(child_board, depth - 1, True, alpha, beta, -player)
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+            return min_eval, best_move
+
+    def evaluate_board(self, board, player):
+      weights = np.array([
+        [100, -10, 10,  6,  6, 10, -10, 100],
+        [-10, -20,  1,  3,  3,  1, -20, -10],
+        [10,    1,  5,  2,  2,  5,   1,  10],
+        [6,     3,  2,  1,  1,  2,   3,   6],
+        [6,     3,  2,  1,  1,  2,   3,   6],
+        [10,    1,  5,  2,  2,  5,   1,  10],
+        [-10, -20,  1,  3,  3,  1, -20, -10],
+        [100, -10, 10,  6,  6, 10, -10, 100]
+      ])
+
+      player_score = np.sum(board == player)
+      opponent_score = np.sum(board == -player)
+      mobility_score = len(get_valid_moves(board, player)) - len(get_valid_moves(board, -player))
+
+      corner_score = np.sum(board[[0, 0, -1, -1], [0, -1, 0, -1]] == player)
+      edge_score = np.sum(board[1:-1, [0, -1]] == player) + np.sum(board[[0, -1], 1:-1] == player)
+
+      total_score = player_score - opponent_score + mobility_score + corner_score + edge_score
+
+      return total_score
+
