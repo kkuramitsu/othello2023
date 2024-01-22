@@ -197,10 +197,10 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-class twinsmomoAI:
+class twinsmomoAI(OthelloAI):
     def __init__(self, face, name, depth=3):
-        self.face = face
-        self.name = name
+        self.face = '🍑'
+        self.name = "momoko"
         self.depth = depth
         self.weights = {'stone_count': 1.0, 'mobility': 1.0, 'corner_bonus': 1.0, 'flipping_potential': 1.0}
     
@@ -286,7 +286,7 @@ def flip_stones(board, row, col, player):
 
 # プレイヤーの定義
 player1 = OchibiAI(BLACK, "Player1")
-player2 = twinsmomoAI(WHITE, "twinsmomoAI")
+player2 = twinsmomoAI(WHITE, "twinsmomoAI(OthelloAI)")
 
 # ゲームの実行
 game(player1, player2, N=8)
