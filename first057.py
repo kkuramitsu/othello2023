@@ -212,48 +212,71 @@ class PiyopiyoAI(OthelloAI):
         self.face = '🐤' # 自分の好きな絵文字
         self.name = 'ぴよ' # 自分の好きな名前
 
-    yosumi = [(0, 0), (0, 7), (7, 0), (7, 7)]
-    abunai = [(0, 1), (1, 1), (1, 0), (0, 6), (1, 6), (1, 7), (6, 0), (6, 1), (7, 1), (7, 6), (6, 6), (6, 7)]
-    abunai00 = [(0, 1), (1, 1), (1, 0)]
-    abunai07 = [(0, 6), (1, 6), (1, 7)]
-    abunai70 = [(6, 0), (6, 1), (7, 1)]
-    abunai77 =[(7, 6), (6, 6), (6, 7)]
-
-    def get_common_list(list1, list2):
-        set1 = set(list1)
-        set2 = set(list2)
-        common_set = set1 & set2
-        return list(common_set)
-
-    def has_common_value(list1, list2):
-        for value in list1:
-          if value in list2:
-            return True
-        return False
-        
-    def get_unique_list_from_list1(list1, list2):
-      set1 = set(list1)
-      set2 = set(list2)
-      unique_set = set1 - set2
-      return list(unique_set)
-
     def __init__(self, face, name):
         self.face = face
         self.name = name
+    
+    def say(self, board: np.array, piece: int)->str:
+      if count_board(board, piece) >= count_board(board, -piece):
+        return 'ふふふふ( *´艸｀)'
+      else:
+        return '再戦！再戦希望！'
 
     def move(self, board, color: int)->tuple[int, int]:
         """
         ボードが与えられたとき、どこに置くか(row,col)を返す
         """
+        #list1とlist2の共通の値のリストを返す
+        def get_common_list(list1, list2):
+          set1 = set(list1)
+          set2 = set(list2)
+          common_set = set1 & set2
+          return list(common_set)
+
+        def has_common_value(list1, list2):
+          #list1とlist2に共通する値があるかどうかの判別
+          for value in list1:
+            if value in list2:
+              return True
+          return False
+        def get_unique_list_from_list1(list1, list2):
+          #list1からlist2の値を引いたリストを返す
+          set1 = set(list1)
+          set2 = set(list2)
+          unique_set = set1 - set2
+          return list(unique_set)
+
+        yosumi = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        abunai = [(0, 1), (1, 1), (1, 0), (0, 6), (1, 6), (1, 7), (6, 0), (6, 1), (7, 1), (7, 6), (6, 6), (6, 7)]
+        abunai00 = [(0, 1), (1, 1), (1, 0)]
+        abunai07 = [(0, 6), (1, 6), (1, 7)]
+        abunai70 = [(6, 0), (6, 1), (7, 1)]
+        abunai77 =[(7, 6), (6, 6), (6, 7)]
+
         valid_moves = get_valid_moves(board, color)
 
         if has_common_value(valid_moves, yosumi):
           tefuda = get_common_list(valid_moves, yosumi)
           selected_move = random.choice(tefuda)
+
         elif has_common_value(valid_moves, abunai):
-          if len(list1) == 0
-        
+          tefuda = valid_moves
+
+          if has_common_value(valid_moves, abunai00):
+            tefuda = get_unique_list_from_list1(valid_moves, abunai00)
+          if has_common_value(tefuda, abunai07):
+            tefuda = get_unique_list_from_list1(tefuda, abunai07)
+          if has_common_value(tefuda, abunai70):
+            tefuda = get_unique_list_from_list1(tefuda, abunai70)
+          if has_common_value(tefuda, abunai77):
+            tefuda = get_unique_list_from_list1(tefuda, abunai77)
+
+          if len(tefuda) == 0 :
+            selected_move = random.choice(valid_moves)
+          else:
+            selected_move = random.choice(tefuda)
+            
         else:
           selected_move = random.choice(valid_moves)
-        
+
         return selected_move
