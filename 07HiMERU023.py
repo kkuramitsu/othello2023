@@ -5,20 +5,16 @@ import time
 import os
 import random
 
+BLACK = -1  # 黒
+WHITE = 1   # 白
+EMPTY = 0   # 空
 
-BLACK = -1
-WHITE = 1
-EMPTY = 0
-
-def init_board(N:int=8): 
+def init_board(N:int=8):
     """
     ボードを初期化する
-    N: ボードの大きさ　（N=8がデフォルト値）
+    N: ボードの大きさ　(N=8がデフォルト値）
     """
-    # Initialize the board with an 8x8 numpy array
     board = np.zeros((N, N), dtype=int)
-    # Set up the initial four stones
-
     C0 = N//2
     C1 = C0-1
     board[C1, C1], board[C0, C0] = WHITE, WHITE  # White
@@ -32,13 +28,17 @@ def count_board(board, piece=EMPTY):
 BG_EMPTY = "\x1b[42m"
 BG_RESET = "\x1b[0m"
 
-
 stone_codes = [
     f'{BG_EMPTY}⚫️{BG_RESET}',
-    f'{BG_EMPTY}・{BG_RESET}',
+    f'{BG_EMPTY}🟩{BG_RESET}',
     f'{BG_EMPTY}⚪️{BG_RESET}',
-
 ]
+
+# stone_codes = [
+#     f'黒',
+#     f'・',
+#     f'白',
+# ]
 
 def stone(piece):
     return stone_codes[piece+1]
@@ -52,9 +52,7 @@ WHITE_NAME=''
 
 def display_board(board, clear=True, sleep=0, black=None, white=None):
     """
-
-    オセロボードを表示する
-
+    オセロ盤を表示する
     """
     global BLACK_NAME, WHITE_NAME
     if clear:
@@ -87,11 +85,6 @@ def all_positions(board):
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
 def is_valid_move(board, row, col, player):
-
-    """
-    boardが与えられたとき、row行col列目にplayerの色の石が置けるかどうか判定する
-    """
-
     # Check if the position is within the board and empty
     N = len(board)
     if row < 0 or row >= N or col < 0 or col >= N or board[row, col] != 0:
@@ -107,9 +100,6 @@ def is_valid_move(board, row, col, player):
     return False
 
 def get_valid_moves(board, player):
-    """
-    board上にplayerが置ける位置を示す
-    """
     return [(r, c) for r, c in all_positions(board) if is_valid_move(board, r, c, player)]
 
 def flip_stones(board, row, col, player):
@@ -172,6 +162,7 @@ class OchibiAI(OthelloAI):
         valid_moves = get_valid_moves(board, piece)
         return valid_moves[0]
 
+import traceback
 
 def board_play(player: OthelloAI, board, piece: int):
     display_board(board, sleep=0)
@@ -212,7 +203,6 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
-
 import random
 
 class HiMERUAI(OthelloAI):
@@ -220,12 +210,27 @@ class HiMERUAI(OthelloAI):
         self.face = '☕'
         self.name = 'HiMERU'
 
-
-    def move(self, board, color: int)->tuple[int, int]:
+    def move(self, board, color: int) -> tuple[int, int]:
         """
-        ボードが与えられたとき、どこに置くか(row,col)を返す
+        ボードが与えられたとき、どこに置くか(row, col)を返す
         """
         valid_moves = get_valid_moves(board, color)
-        # ランダムに選ぶ
+
+        # 角に石を置ける場合、それを最優先
+        corner_moves = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        corner_valid_moves = list(set(valid_moves) & set(corner_moves))
+        if corner_valid_moves:
+            return random.choice(corner_valid_moves)
+
+        # 特定の位置に石を置ける場合、それを優先
+        priority_moves = [(0, 2), (0, 5), (2, 0), (5, 0), (7, 2), (7, 5), (5, 7)]
+        priority_valid_moves = list(set(valid_moves) & set(priority_moves))
+        if priority_valid_moves:
+            return random.choice(priority_valid_moves)
+
+        # 上記の条件が満たされない場合はランダムに選ぶ
         selected_move = random.choice(valid_moves)
         return selected_move
+
+
+
