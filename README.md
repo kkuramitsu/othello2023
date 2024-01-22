@@ -2,6 +2,6 @@
 オセロAIを作ろう！2023年度版
 
 
-### 優勝🌸PamoAI()
+### 優勝🌸`from othello2023.pamo009 import PamoAI`
 
-#### 準優勝🎖TaeAI()
+#### 準優勝🎖`from othello2023.pamo009 import TaeAI`
