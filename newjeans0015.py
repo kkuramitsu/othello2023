@@ -1,33 +1,3 @@
-import random
-import numpy as np
-
-class OthelloAI(object):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
-
-    def __repr__(self):
-        return f"{self.face}{self.name}"
-
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-
-    def say(self, board: np.array, piece: int)->str:
-        if count_board(board, piece) >= count_board(board, -piece):
-            return 'やったー'
-        else:
-            return 'がーん'
-            
-class OchibiAI(OthelloAI):
-    def __init__(self, face, name):
-        self.face = face
-        self.name = name
-
-    def move(self, board: np.array, piece: int)->tuple[int, int]:
-        valid_moves = get_valid_moves(board, piece)
-        return valid_moves[0]
-
 from typing import List, Union
 import numpy as np
 from IPython.display import clear_output
@@ -165,6 +135,32 @@ def find_eagar_move(board, player):
             max_flips = len(stones_to_flip)
     return best_result
 
+class OthelloAI(object):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def __repr__(self):
+        return f"{self.face}{self.name}"
+
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        return valid_moves[0]
+
+    def say(self, board: np.array, piece: int)->str:
+        if count_board(board, piece) >= count_board(board, -piece):
+            return 'やったー'
+        else:
+            return 'がーん'
+
+class OchibiAI(OthelloAI):
+    def __init__(self, face, name):
+        self.face = face
+        self.name = name
+
+    def move(self, board: np.array, piece: int)->tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
+        return valid_moves[0]
 
 import traceback
 
@@ -207,17 +203,52 @@ def game(player1: OthelloAI, player2: OthelloAI,N=6):
             break
     comment(player1, player2, board)
 
+#自分のAI
+
+
 class ringoAI(OthelloAI):
     def __init__(self, face, name):
-        self.face = face
-        self.name = name
+        self.face = '🐰'
+        self.name = 'おぱんちゅう'
 
-    def move(self, board, color: int)->tuple[int, int]:
-        """
-        ボードが与えられたとき、どこに置くか(row,col)を返す
-        """
-        valid_moves = get_valid_moves(board, color)
-        # ランダムに選ぶ
-        selected_move = random.choice(valid_moves)
-        return selected_move
+    def move(self, board: np.array, piece: int) -> tuple[int, int]:
+        valid_moves = get_valid_moves(board, piece)
 
+        # 勝利手のチェック
+        for move in valid_moves:
+            if self.is_winning_move(board, move, piece):
+                return move
+
+        # ブロッキング手のチェック
+        for move in valid_moves:
+            if self.is_blocking_move(board, move, piece):
+                return move
+
+        # 戦略手がない場合はランダムな手を選択
+        return random.choice(valid_moves)
+
+    def is_winning_move(self, board: np.array, move: tuple[int, int], piece: int) -> bool:
+        """
+        プレイヤーにとっての勝利手かどうかをチェックします。
+        """
+        board_copy = board.copy()
+        row, col = move
+        stones_to_flip = flip_stones(board_copy, row, col, piece)
+        board_copy[row, col] = piece
+        for r, c in stones_to_flip:
+            board_copy[r, c] = piece
+        return count_board(board_copy, piece) > count_board(board, piece)
+
+    def is_blocking_move(self, board: np.array, move: tuple[int, int], piece: int) -> bool:
+        """
+        対戦相手が勝利するのをブロックする手かどうかをチェックします。
+        """
+        opponent_piece = -piece
+        board_copy = board.copy()
+        row, col = move
+        stones_to_flip = flip_stones(board_copy, row, col, piece)
+        board_copy[row, col] = piece
+        for r, c in stones_to_flip:
+            board_copy[r, c] = piece
+        opponent_moves = get_valid_moves(board_copy, opponent_piece)
+        return any(self.is_winning_move(board_copy, opp_move, opponent_piece) for opp_move in opponent_moves)
